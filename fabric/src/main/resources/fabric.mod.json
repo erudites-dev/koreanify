@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "id": "koreanify",
+  "version": "${version}",
+  "name": "Koreanify",
+  "description": "Improves Korean chat and IME compatibility as a client-side utility.",
+  "authors": [
+    {
+      "name": "shihyeon",
+      "contact": {
+        "sources": "https://github.com/shihyeon"
+      }
+    },
+    {
+      "name": "apersomany",
+      "contact": {
+        "sources": "https://github.com/apersomany"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/koreanify",
+    "sources": "https://github.com/erudites-dev/koreanify",
+    "issues": "https://github.com/erudites-dev/koreanify/issues"
+  },
+  "license": "LGPL-3.0-only",
+  "icon": "assets/koreanify/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.erudites.mods.koreanify.fabric.client.KoreanifyFabricClientMod"
+    ]
+  },
+  "mixins": [
+    "koreanify.mixins.json"
+  ],
+  "depends": {
+    "java": ">=25",
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": ">=${minecraft_version}"
+  },
+  "suggests": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/mod/koreanify",
+        "modmenu.curseforge": "https://www.curseforge.com/minecraft/mc-mods/koreanify"
+      }
+    }
+  }
+}

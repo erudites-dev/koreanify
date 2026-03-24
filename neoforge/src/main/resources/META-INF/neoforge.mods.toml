@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="LGPL-3.0-only"
+issueTrackerURL="https://github.com/erudites-dev/koreanify/issues"
+
+[[mods]]
+modId="koreanify"
+displayName="Koreanify"
+version="${version}"
+logoFile= "assets/koreanify/icon.png"
+authors="shihyeon, apersomany"
+description='''
+Improves Korean chat and IME compatibility as a client-side utility.
+'''
+modUrl="https://modrinth.com/mod/koreanify"
+displayURL="https://modrinth.com/mod/koreanify"
+
+[[mixins]]
+config="koreanify.mixins.json"
+
+[[dependencies.koreanify]]
+modId="minecraft"
+type="required"
+versionRange="[${minecraft_version},)"
+ordering="NONE"
+side="CLIENT"

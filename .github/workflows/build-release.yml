@@ -1,0 +1,88 @@
+# This workflow will build a Java project with Brachyra
+# For more information see: docs/development/brachyura.md
+
+name: build-release
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        required: true
+        type: boolean
+        default: true
+        description: 'Whether to publish the built artifacts'
+      version-type:
+        required: true
+        type: choice
+        default: 'release'
+        options:
+          - release
+          - beta
+          - alpha
+        description: 'Publishing version type'
+      include-snapshot:
+        required: false
+        type: boolean
+        default: false
+        description: 'Whether to include snapshot versions in the published artifacts'
+      fabric-artifact:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to publish the Fabric/Quilt artifact'
+      neoforge-artifact:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to publish the NeoForge artifact'
+      publish-modrinth:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to publish the mod on Modrinth'
+      publish-curseforge:
+        required: false
+        type: boolean
+        default: true
+        description: 'Whether to publish the mod on CurseForge'
+      changelog-text:
+        required: false
+        type: string
+        description: 'Changelog: Input multiple lines, use `\\n`. (supports markdown)'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-read-only: true
+
+      - name: Build and Publish
+        run: ./gradlew publishMods -Pbuild.release=true
+        env:
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANGELOG_TEXT: ${{ inputs.changelog-text }}
+          VERSION_TYPE: ${{ inputs.version-type }}
+          INCLUDE_SNAPSHOTS: ${{ inputs.include-snapshot }}
+          PUBLISH_ENABLED: ${{ inputs.publish }}
+          FABRIC_ARTIFACT: ${{ inputs.fabric-artifact }}
+          NEOFORGE_ARTIFACT: ${{ inputs.neoforge-artifact }}
+          PUBLISH_MODRINTH: ${{ inputs.publish-modrinth }}
+          PUBLISH_CURSEFORGE: ${{ inputs.publish-curseforge }}

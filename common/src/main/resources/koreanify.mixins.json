@@ -1,0 +1,20 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.erudites.mods.koreanify.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [],
+  "client": [
+    "commands.SuggestionsBuilderMixin",
+    "components.EditBoxMixin",
+    "components.MultiLineEditBoxMixin",
+    "components.MultilineTextFieldAccessor",
+    "screens.AbstractSignEditScreenMixin",
+    "screens.CreativeModeInventoryScreenMixin",
+    "screens.RecipeBookComponentMixin",
+    "screens.WorldSelectionListMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
