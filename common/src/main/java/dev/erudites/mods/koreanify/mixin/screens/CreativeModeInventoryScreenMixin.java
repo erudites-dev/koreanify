@@ -50,7 +50,7 @@ abstract class CreativeModeInventoryScreenMixin {
         if (!empty) {
             return false;
         }
-        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify_composition().isEmpty();
+        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify$composition().isEmpty();
     }
 
     @WrapOperation(
@@ -64,7 +64,7 @@ abstract class CreativeModeInventoryScreenMixin {
         String composedTarget = PreeditComposer.mergedSearchQuery(
             this.searchBox.getValue(),
             this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify_composition()
+            ((PreeditState) this.searchBox).koreanify$composition()
         );
         if (composedTarget.startsWith("#")) {
             return original.call(instance, composedTarget);

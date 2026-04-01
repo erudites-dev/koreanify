@@ -41,7 +41,7 @@ abstract class EditBoxMixin implements PreeditState {
     private String composition = "";
 
     @Override
-    public String koreanify_composition() {
+    public String koreanify$composition() {
         return this.composition;
     }
 

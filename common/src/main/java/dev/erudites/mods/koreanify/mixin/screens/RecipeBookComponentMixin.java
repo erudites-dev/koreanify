@@ -67,7 +67,7 @@ abstract class RecipeBookComponentMixin {
         String searchText = PreeditComposer.mergedSearchQuery(
             this.searchBox.getValue(),
             this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify_composition()
+            ((PreeditState) this.searchBox).koreanify$composition()
         );
         this.pirateSpeechForThePeople(searchText);
         if (!searchText.equals(this.lastSearch)) {
@@ -89,7 +89,7 @@ abstract class RecipeBookComponentMixin {
         if (!empty) {
             return false;
         }
-        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify_composition().isEmpty();
+        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify$composition().isEmpty();
     }
 
     @WrapOperation(
@@ -106,7 +106,7 @@ abstract class RecipeBookComponentMixin {
         String composedTarget = PreeditComposer.mergedSearchQuery(
             this.searchBox.getValue(),
             this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify_composition()
+            ((PreeditState) this.searchBox).koreanify$composition()
         );
         List<RecipeCollection> vanillaResults = original.call(instance, composedTarget);
         if (this.minecraft.level == null || this.selectedTab == null) {

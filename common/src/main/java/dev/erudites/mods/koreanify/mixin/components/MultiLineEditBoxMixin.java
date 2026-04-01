@@ -29,7 +29,7 @@ abstract class MultiLineEditBoxMixin {
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
     private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         String fullPreedit = (event != null) ? event.fullText() : "";
-        MultilineTextFieldAccessor accessor = (MultilineTextFieldAccessor) this.textField;
+        MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         if (fullPreedit.isEmpty()) {
             this.composition = "";
             cir.setReturnValue(true);
@@ -39,8 +39,8 @@ abstract class MultiLineEditBoxMixin {
             fullPreedit,
             this.textField.value(),
             this.textField.cursor(),
-            accessor.getSelectCursor(),
-            mergedText -> mergedText.length() <= this.textField.characterLimit() && !accessor.callOverflowsLineLimit(mergedText)
+            field.koreanify$selectCursor(),
+            mergedText -> mergedText.length() <= this.textField.characterLimit() && !field.koreanify$overflowsLineLimit(mergedText)
         );
         if (validComposition.isEmpty()) {
             this.composition = "";
@@ -54,7 +54,7 @@ abstract class MultiLineEditBoxMixin {
             return;
         }
         this.composition = validComposition;
-        Consumer<String> valueListener = accessor.getValueListener();
+        Consumer<String> valueListener = field.koreanify$valueListener();
         if (valueListener != null) {
             valueListener.accept(PreeditComposer.merge(this.textField.value(), this.textField.cursor(), this.composition).text());
         }
@@ -71,15 +71,15 @@ abstract class MultiLineEditBoxMixin {
         int previousCursor = this.textField.cursor();
         PreeditComposer.PreeditResult result = PreeditComposer.merge(previousValue, previousCursor, this.composition);
         this.textField.setValue(result.text());
-        MultilineTextFieldAccessor accessor = (MultilineTextFieldAccessor) this.textField;
-        accessor.setCursor(result.cursor());
-        accessor.setSelectCursor(result.cursor());
+        MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
+        field.koreanify$cursor(result.cursor());
+        field.koreanify$selectCursor(result.cursor());
         try {
             original.call(graphics, mouseX, mouseY, delta);
         } finally {
             this.textField.setValue(previousValue);
-            accessor.setCursor(previousCursor);
-            accessor.setSelectCursor(previousCursor);
+            field.koreanify$cursor(previousCursor);
+            field.koreanify$selectCursor(previousCursor);
         }
     }
 }

@@ -11,17 +11,17 @@ import java.util.function.Consumer;
 interface MultilineTextFieldAccessor {
 
     @Accessor("cursor")
-    void setCursor(int cursor);
+    void koreanify$cursor(int cursor);
 
     @Accessor("selectCursor")
-    int getSelectCursor();
+    int koreanify$selectCursor();
 
     @Accessor("selectCursor")
-    void setSelectCursor(int selectCursor);
+    void koreanify$selectCursor(int selectCursor);
 
     @Accessor("valueListener")
-    Consumer<String> getValueListener();
+    Consumer<String> koreanify$valueListener();
 
     @Invoker("overflowsLineLimit")
-    boolean callOverflowsLineLimit(String newValue);
+    boolean koreanify$overflowsLineLimit(String newValue);
 }
