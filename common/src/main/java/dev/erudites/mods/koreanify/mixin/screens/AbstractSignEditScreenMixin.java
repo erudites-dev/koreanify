@@ -3,6 +3,7 @@ package dev.erudites.mods.koreanify.mixin.screens;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
+import dev.erudites.mods.koreanify.client.ime.PreeditHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.font.TextFieldHelper;
@@ -32,48 +33,41 @@ abstract class AbstractSignEditScreenMixin {
     private TextFieldHelper signField;
 
     @Unique
-    private String composition = "";
+    private final PreeditHandler preeditHandler = new PreeditHandler();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
     private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
-        String fullPreedit = (event != null) ? event.fullText() : "";
-        if (fullPreedit.isEmpty() || this.signField == null) {
-            this.composition = "";
+        if (this.signField == null) {
+            this.preeditHandler.clear();
             cir.setReturnValue(true);
             return;
         }
-        String validComposition = PreeditComposer.fitComposition(
-            fullPreedit,
+        this.preeditHandler.handlePreedit(
+            event,
             this.messages[this.line],
             this.signField.getCursorPos(),
             this.signField.getSelectionPos(),
-            mergedText -> Minecraft.getInstance().font.width(mergedText) <= this.sign.getMaxTextLineWidth()
+            mergedText -> Minecraft.getInstance().font.width(mergedText) <= this.sign.getMaxTextLineWidth(),
+            this.signField::insertText,
+            null
         );
-        if (validComposition.isEmpty()) {
-            this.composition = "";
-            cir.setReturnValue(true);
-            return;
-        }
-        if (validComposition.length() < fullPreedit.length()) {
-            PreeditComposer.commitAndResetIme(validComposition, this.signField::insertText);
-            this.composition = "";
-            cir.setReturnValue(true);
-            return;
-        }
-        this.composition = validComposition;
         cir.setReturnValue(true);
     }
 
     @WrapMethod(method = "extractSignText")
     private void wrapRenderSignText(GuiGraphicsExtractor graphics, Vector2f cursorPosOutput, Operation<Void> original) {
-        if (this.composition.isEmpty() || this.signField == null) {
+        if (this.preeditHandler.composition().isEmpty() || this.signField == null) {
             original.call(graphics, cursorPosOutput);
             return;
         }
         String previousMessage = this.messages[this.line];
         int previousCursorPos = this.signField.getCursorPos();
         int previousSelectionPos = this.signField.getSelectionPos();
-        PreeditComposer.PreeditResult result = PreeditComposer.merge(previousMessage, previousCursorPos, this.composition);
+        PreeditComposer.PreeditResult result = PreeditComposer.merge(
+            previousMessage,
+            previousCursorPos,
+            this.preeditHandler.composition()
+        );
         this.messages[this.line] = result.text();
         this.signField.setCursorPos(result.cursor());
         this.signField.setSelectionPos(result.cursor());

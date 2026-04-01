@@ -3,6 +3,7 @@ package dev.erudites.mods.koreanify.mixin.components;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
+import dev.erudites.mods.koreanify.client.ime.PreeditHandler;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
@@ -24,52 +25,36 @@ abstract class MultiLineEditBoxMixin {
     private MultilineTextField textField;
 
     @Unique
-    private String composition = "";
+    private final PreeditHandler preeditHandler = new PreeditHandler();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
     private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
-        String fullPreedit = (event != null) ? event.fullText() : "";
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
-        if (fullPreedit.isEmpty()) {
-            this.composition = "";
-            cir.setReturnValue(true);
-            return;
-        }
-        String validComposition = PreeditComposer.fitComposition(
-            fullPreedit,
+        this.preeditHandler.handlePreedit(
+            event,
             this.textField.value(),
             this.textField.cursor(),
             field.koreanify$selectCursor(),
-            mergedText -> mergedText.length() <= this.textField.characterLimit() && !field.koreanify$overflowsLineLimit(mergedText)
+            mergedText -> mergedText.length() <= this.textField.characterLimit() && !field.koreanify$overflowsLineLimit(mergedText),
+            this.textField::insertText,
+            field.koreanify$valueListener()
         );
-        if (validComposition.isEmpty()) {
-            this.composition = "";
-            cir.setReturnValue(true);
-            return;
-        }
-        if (validComposition.length() < fullPreedit.length()) {
-            PreeditComposer.commitAndResetIme(validComposition, this.textField::insertText);
-            this.composition = "";
-            cir.setReturnValue(true);
-            return;
-        }
-        this.composition = validComposition;
-        Consumer<String> valueListener = field.koreanify$valueListener();
-        if (valueListener != null) {
-            valueListener.accept(PreeditComposer.merge(this.textField.value(), this.textField.cursor(), this.composition).text());
-        }
         cir.setReturnValue(true);
     }
 
     @WrapMethod(method = "extractContents")
     private void wrapExtractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
-        if (this.composition.isEmpty()) {
+        if (this.preeditHandler.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;
         }
         String previousValue = this.textField.value();
         int previousCursor = this.textField.cursor();
-        PreeditComposer.PreeditResult result = PreeditComposer.merge(previousValue, previousCursor, this.composition);
+        PreeditComposer.PreeditResult result = PreeditComposer.merge(
+            previousValue,
+            previousCursor,
+            this.preeditHandler.composition()
+        );
         this.textField.setValue(result.text());
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         field.koreanify$cursor(result.cursor());
