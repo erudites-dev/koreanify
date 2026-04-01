@@ -12,8 +12,8 @@ base {
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
 
-    compileOnly("io.github.llamalad7:mixinextras-common:0.5.0")
-    annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.0")
+    compileOnly("io.github.llamalad7:mixinextras-common:0.5.3")
+    annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.3")
 
     // https://mvnrepository.com/artifact/net.fabricmc/sponge-mixin
     compileOnly("net.fabricmc:sponge-mixin:0.17.0+mixin.0.8.7")
