@@ -6,10 +6,9 @@ Experience smoother Korean typing with this client-side mod. It effectively reso
 
 26.1-snapshot-9의 개선된 IME를 기반으로 게임 내 한글 채팅 호환성과 입력 환경을 향상시킨 클라이언트 유틸리티 모드입니다.
 
-## Download
-
-- [Modrinth](https://modrinth.com/mod/koreanify)
-- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/koreanify)
+[![modrinth](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/mod/koreanify)
+[![curseforge](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/curseforge_vector.svg)](https://www.curseforge.com/minecraft/mc-mods/koreanify)
+[![github](https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/available/github_vector.svg)](https://github.com/erudites-dev/koreanify)
 
 ---
 
