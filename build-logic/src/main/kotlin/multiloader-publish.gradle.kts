@@ -124,4 +124,8 @@ gradle.projectsEvaluated {
             jars.drop(1).forEach { additionalFiles.from(it) }
         }
     }
+
+    tasks.matching { it.name.startsWith("publish") && it.name.contains("Neoforge", ignoreCase = true) }.configureEach {
+        mustRunAfter(tasks.matching { it.name.startsWith("publish") && it.name.contains("Fabric", ignoreCase = true) })
+    }
 }
