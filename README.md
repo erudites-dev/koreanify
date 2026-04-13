@@ -18,7 +18,7 @@ Removed the IME indicator and integrated it into the text box.
 
 IME 표시기를 없애고 텍스트 박스에 동화하였습니다.
 
-![ko-chat](https://cdn.modrinth.com/data/cached_images/577f8bfa024f28d1f302e08776f86926b236babf.png)
+![ko-chat](https://cdn.modrinth.com/data/p1nSK3e3/images/18fb78daa9ac9ce80ae19b5be84b683a51b6489e.png)
 
 ---
 
@@ -26,7 +26,15 @@ Choseong(Initial consonant) search has been applied to the search box.
 
 검색 박스에 초성 검색을 적용하였습니다.
 
-![chosung-serch](https://cdn.modrinth.com/data/cached_images/aa2b1aa1ba70a80376f45d81f1613ea3b34bdc67.png)
+![chosung-serch](https://cdn.modrinth.com/data/p1nSK3e3/images/aa2b1aa1ba70a80376f45d81f1613ea3b34bdc67.png)
+
+---
+
+Choseong(Initial consonant) search has been applied to command input.
+
+명령어를 입력할 때, 초성 검색을 적용하였습니다.
+
+![command-input](https://cdn.modrinth.com/data/p1nSK3e3/images/a679adf2811d495942b7b88a56e0e3b7bf526a6e.png)
 
 ## License
 
