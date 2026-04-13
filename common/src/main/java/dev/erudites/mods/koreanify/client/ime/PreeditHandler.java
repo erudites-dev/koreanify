@@ -26,6 +26,9 @@ public final class PreeditHandler {
         String fullPreedit = (event != null) ? event.fullText() : "";
         if (fullPreedit.isEmpty()) {
             this.composition = "";
+            if (responder != null) {
+                responder.accept(currentValue);
+            }
             return;
         }
         int available = PreeditComposer.availableSpace(
@@ -70,6 +73,9 @@ public final class PreeditHandler {
         String fullPreedit = (event != null) ? event.fullText() : "";
         if (fullPreedit.isEmpty()) {
             this.composition = "";
+            if (responder != null) {
+                responder.accept(currentValue);
+            }
             return;
         }
         String valid = PreeditComposer.fitComposition(

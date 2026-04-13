@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.Consumer;
@@ -44,6 +45,12 @@ abstract class EditBoxMixin implements PreeditState {
     @Override
     public String koreanify$composition() {
         return this.preeditHandler.composition();
+    }
+
+    @Inject(method = "setValue", at = @At("HEAD"))
+    private void koreanify$clearPreeditOnSetValue(String value, CallbackInfo ci) {
+        this.preeditHandler.clear();
+        PreeditComposer.resetIme();
     }
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)

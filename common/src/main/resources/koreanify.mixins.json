@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_25",
   "mixins": [],
   "client": [
-    "commands.SuggestionsBuilderMixin",
+    "commands.CommandSuggestionsMixin",
+    "commands.LiteralCommandNodeMixin",
+    "components.EditBoxAccessor",
     "components.EditBoxMixin",
     "components.MultiLineEditBoxMixin",
     "components.MultilineTextFieldAccessor",
