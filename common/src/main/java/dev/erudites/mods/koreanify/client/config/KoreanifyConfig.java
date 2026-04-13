@@ -12,7 +12,11 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
     }
 
     public static void initialize(Path configDir) {
-        INSTANCE = INSTANCE.loadFrom(configDir);
+        INSTANCE = INSTANCE.setup(configDir);
+    }
+
+    public static void save() {
+        INSTANCE.saveConfig();
     }
 
     public CommandConfig command = new CommandConfig();

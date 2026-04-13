@@ -9,6 +9,8 @@ object BuildConfig {
     val NEOFORGE_VERSION: String = "26.1.0.19-beta"
     val FABRIC_LOADER_VERSION: String = "0.18.6"
 
+    val SODIUM_VERSION: String = "0.8.9+mc26.1.1"
+
     // https://semver.org/
     var MOD_VERSION: String = "0.1.2"
 

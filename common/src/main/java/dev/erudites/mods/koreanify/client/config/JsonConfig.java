@@ -14,7 +14,22 @@ import java.util.stream.Collectors;
 
 public abstract class JsonConfig<T extends JsonConfig<T>> {
 
+    private Path configDir;
+
     protected abstract String fileName();
+
+    @SuppressWarnings("unchecked")
+    public T setup(Path configDir) {
+        T loaded = this.loadFrom(configDir);
+        ((JsonConfig<?>) loaded).configDir = configDir;
+        return loaded;
+    }
+
+    public void saveConfig() {
+        if (this.configDir != null) {
+            this.saveTo(this.configDir);
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public T loadFrom(Path configDir) {

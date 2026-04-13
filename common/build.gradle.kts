@@ -18,6 +18,8 @@ dependencies {
     // https://mvnrepository.com/artifact/net.fabricmc/sponge-mixin
     compileOnly("net.fabricmc:sponge-mixin:0.17.0+mixin.0.8.7")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
+
+    compileOnly("net.caffeinemc:sodium-fabric-api:${BuildConfig.SODIUM_VERSION}")
 }
 
 loom {

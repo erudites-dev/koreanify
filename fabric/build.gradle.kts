@@ -33,6 +33,8 @@ sourceSets.apply {
 dependencies {
     minecraft("com.mojang:minecraft:${BuildConfig.MINECRAFT_VERSION}")
     implementation("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
+
+    compileOnly("net.caffeinemc:sodium-fabric-api:${BuildConfig.SODIUM_VERSION}")
 }
 
 loom {

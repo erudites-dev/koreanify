@@ -29,6 +29,9 @@
   "entrypoints": {
     "client": [
       "dev.erudites.mods.koreanify.fabric.client.KoreanifyFabricClientMod"
+    ],
+    "sodium:config_api_user": [
+      "dev.erudites.mods.koreanify.client.integration.sodium.KoreanifySodiumConfigBuilder"
     ]
   },
   "mixins": [

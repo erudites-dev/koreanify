@@ -21,6 +21,8 @@ repositories {
 dependencies {
     configurationCommonModJava(project(path = ":common", configuration = "commonMainJava"))
     configurationCommonModResources(project(path = ":common", configuration = "commonMainResources"))
+
+    compileOnly("net.caffeinemc:sodium-neoforge-api:${BuildConfig.SODIUM_VERSION}")
 }
 
 sourceSets {

@@ -1,0 +1,5 @@
+{
+  "koreanify.config.page.commands": "Commands",
+  "koreanify.config.option.command_search_korean_only": "Korean-Only Command Search",
+  "koreanify.config.option.command_search_korean_only.tooltip": "When enabled, Korean/Jamo matching in tab-completion only applies if the input contains Korean characters. When disabled, substring matching is applied to all input (e.g. /mode → /gamemode)."
+}

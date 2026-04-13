@@ -1,0 +1,5 @@
+{
+  "koreanify.config.page.commands": "명령어",
+  "koreanify.config.option.command_search_korean_only": "한글 전용 명령어 검색",
+  "koreanify.config.option.command_search_korean_only.tooltip": "활성화 시, 입력에 한글이 포함된 경우에만 한글/초성 매칭을 적용합니다. 비활성화 시, 영문 입력에도 부분 문자열 매칭을 적용합니다. (/mode → /gamemode 등)"
+}

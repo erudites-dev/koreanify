@@ -16,3 +16,17 @@ tasks.withType<JavaCompile> {
 tasks.withType<GenerateModuleMetadata>().configureEach {
     enabled = false
 }
+
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "CaffeineMC"
+                url = uri("https://maven.caffeinemc.net/releases")
+            }
+        }
+        filter {
+            includeGroup("net.caffeinemc")
+        }
+    }
+}
