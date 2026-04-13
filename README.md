@@ -1,3 +1,5 @@
+<img src="common/src/main/resources/assets/koreanify/icon.png" width="128">
+
 # Koreanify
 
 ## Features
