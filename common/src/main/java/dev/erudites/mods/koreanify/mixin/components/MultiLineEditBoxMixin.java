@@ -16,8 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.function.Consumer;
-
 @Mixin(MultiLineEditBox.class)
 abstract class MultiLineEditBoxMixin {
 
@@ -28,7 +26,7 @@ abstract class MultiLineEditBoxMixin {
     private final PreeditHandler preeditHandler = new PreeditHandler();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         this.preeditHandler.handlePreedit(
             event,
@@ -43,7 +41,7 @@ abstract class MultiLineEditBoxMixin {
     }
 
     @WrapMethod(method = "extractContents")
-    private void wrapExtractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
+    private void koreanify$wrapExtractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
         if (this.preeditHandler.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;

@@ -47,7 +47,7 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         this.preeditHandler.handlePreedit(
             event,
             this.value,
@@ -61,7 +61,7 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @WrapMethod(method = "extractWidgetRenderState")
-    private void wrapExtractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
+    private void koreanify$wrapExtractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
         if (this.preeditHandler.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;

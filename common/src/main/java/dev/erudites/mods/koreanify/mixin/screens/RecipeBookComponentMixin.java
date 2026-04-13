@@ -52,14 +52,14 @@ abstract class RecipeBookComponentMixin {
     protected abstract void updateCollections(boolean resetPage, boolean isFiltering);
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
-    private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
             this.checkSearchStringUpdate();
         }
     }
 
     @WrapMethod(method = "checkSearchStringUpdate")
-    private void wrapCheckSearchStringUpdate(Operation<Void> original) {
+    private void koreanify$wrapCheckSearchStringUpdate(Operation<Void> original) {
         if (this.searchBox == null) {
             original.call();
             return;
@@ -84,7 +84,7 @@ abstract class RecipeBookComponentMixin {
             ordinal = 0
         )
     )
-    private boolean wrapIsEmpty(String instance, Operation<Boolean> original) {
+    private boolean koreanify$wrapIsEmpty(String instance, Operation<Boolean> original) {
         boolean empty = original.call(instance);
         if (!empty) {
             return false;
@@ -99,7 +99,7 @@ abstract class RecipeBookComponentMixin {
             target = "Lnet/minecraft/client/searchtree/SearchTree;search(Ljava/lang/String;)Ljava/util/List;"
         )
     )
-    private List<RecipeCollection> wrapSearch(SearchTree<RecipeCollection> instance, String searchTarget, Operation<List<RecipeCollection>> original) {
+    private List<RecipeCollection> koreanify$wrapSearch(SearchTree<RecipeCollection> instance, String searchTarget, Operation<List<RecipeCollection>> original) {
         if (this.searchBox == null) {
             return original.call(instance, searchTarget);
         }

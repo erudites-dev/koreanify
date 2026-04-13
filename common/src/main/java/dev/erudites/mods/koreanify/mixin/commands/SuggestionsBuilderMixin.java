@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 interface SuggestionsBuilderMixin {
 
     @WrapMethod(method = "matchesSubStr")
-    private static boolean wrapSubStr(String pattern, String input, Operation<Boolean> original) {
+    private static boolean koreanify$wrapSubStr(String pattern, String input, Operation<Boolean> original) {
         return original.call(
             KoreanSearchMatcher.toJamo(pattern),
             KoreanSearchMatcher.toJamo(input)

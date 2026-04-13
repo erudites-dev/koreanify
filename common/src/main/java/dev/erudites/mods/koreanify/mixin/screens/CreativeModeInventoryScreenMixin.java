@@ -31,7 +31,7 @@ abstract class CreativeModeInventoryScreenMixin {
     protected abstract void refreshSearchResults();
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
-    private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
             this.refreshSearchResults();
         }
@@ -45,7 +45,7 @@ abstract class CreativeModeInventoryScreenMixin {
             ordinal = 0
         )
     )
-    private boolean wrapIsEmpty(String instance, Operation<Boolean> original) {
+    private boolean koreanify$wrapIsEmpty(String instance, Operation<Boolean> original) {
         boolean empty = original.call(instance);
         if (!empty) {
             return false;
@@ -60,7 +60,7 @@ abstract class CreativeModeInventoryScreenMixin {
             target = "Lnet/minecraft/client/searchtree/SearchTree;search(Ljava/lang/String;)Ljava/util/List;"
         )
     )
-    private List<ItemStack> wrapSearch(SearchTree<ItemStack> instance, String searchTarget, Operation<List<ItemStack>> original) {
+    private List<ItemStack> koreanify$wrapSearch(SearchTree<ItemStack> instance, String searchTarget, Operation<List<ItemStack>> original) {
         String composedTarget = PreeditComposer.mergedSearchQuery(
             this.searchBox.getValue(),
             this.searchBox.getCursorPosition(),

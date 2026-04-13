@@ -7,10 +7,10 @@ object BuildConfig {
     val MINECRAFT_VERSION_MIN: String = MINECRAFT_VERSION_RANGE.split(" ")[0].replace(Regex("^[><=!\\[\\]()]+"), "")
     val MINECRAFT_VERSION: String = "26.1"
     val NEOFORGE_VERSION: String = "26.1.0.19-beta"
-    val FABRIC_LOADER_VERSION: String = "0.18.5"
+    val FABRIC_LOADER_VERSION: String = "0.18.6"
 
     // https://semver.org/
-    var MOD_VERSION: String = "0.1.1"
+    var MOD_VERSION: String = "0.1.2"
 
     fun createVersionString(project: Project): String {
         val builder = StringBuilder()

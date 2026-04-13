@@ -36,7 +36,7 @@ abstract class AbstractSignEditScreenMixin {
     private final PreeditHandler preeditHandler = new PreeditHandler();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void onPreeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (this.signField == null) {
             this.preeditHandler.clear();
             cir.setReturnValue(true);
@@ -55,7 +55,7 @@ abstract class AbstractSignEditScreenMixin {
     }
 
     @WrapMethod(method = "extractSignText")
-    private void wrapRenderSignText(GuiGraphicsExtractor graphics, Vector2f cursorPosOutput, Operation<Void> original) {
+    private void koreanify$wrapRenderSignText(GuiGraphicsExtractor graphics, Vector2f cursorPosOutput, Operation<Void> original) {
         if (this.preeditHandler.composition().isEmpty() || this.signField == null) {
             original.call(graphics, cursorPosOutput);
             return;
