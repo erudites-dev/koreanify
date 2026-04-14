@@ -5,8 +5,8 @@ object BuildConfig {
 
     val MINECRAFT_VERSION_RANGE: String = ">=26.1" // range: ">=26.1 <27.1"
     val MINECRAFT_VERSION_MIN: String = MINECRAFT_VERSION_RANGE.split(" ")[0].replace(Regex("^[><=!\\[\\]()]+"), "")
-    val MINECRAFT_VERSION: String = "26.1"
-    val NEOFORGE_VERSION: String = "26.1.0.19-beta"
+    val MINECRAFT_VERSION: String = "26.1.2"
+    val NEOFORGE_VERSION: String = "26.1.2.8-beta"
     val FABRIC_LOADER_VERSION: String = "0.18.6"
 
     val SODIUM_VERSION: String = "0.8.9+mc26.1.1"
