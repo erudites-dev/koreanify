@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
 
-    public static KoreanifyConfig INSTANCE = new KoreanifyConfig();
+    private static KoreanifyConfig INSTANCE = new KoreanifyConfig();
 
     @Override
     protected String fileName() {
@@ -19,8 +19,13 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
         INSTANCE.saveConfig();
     }
 
+    public static KoreanifyConfig get() {
+        return INSTANCE;
+    }
+
     public CommandConfig command = new CommandConfig();
 
+    @Category("명령어 관련 설정 카테고리")
     public static class CommandConfig {
         @Comment({
             "커맨드 탭 자동완성에서 한글 입력 전용 모드",

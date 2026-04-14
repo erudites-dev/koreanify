@@ -20,8 +20,8 @@ public class KoreanifySodiumConfigBuilder implements ConfigEntryPoint {
                 .setTooltip(Component.translatable("koreanify.config.option.command_search_korean_only.tooltip"))
                 .setDefaultValue(true)
                 .setBinding(
-                    value -> KoreanifyConfig.INSTANCE.command.commandSearchKoreanOnly = value,
-                    () -> KoreanifyConfig.INSTANCE.command.commandSearchKoreanOnly
+                    value -> KoreanifyConfig.get().command.commandSearchKoreanOnly = value,
+                    () -> KoreanifyConfig.get().command.commandSearchKoreanOnly
                 )
                 .setStorageHandler(KoreanifyConfig::save)
             )

@@ -29,7 +29,7 @@ abstract class LiteralCommandNodeMixin {
         String remaining = builder.getRemaining();
         if (!remaining.isEmpty()
             && remaining.indexOf(' ') < 0
-            && (!KoreanifyConfig.INSTANCE.command.commandSearchKoreanOnly || remaining.chars().anyMatch(c -> c >= 'ㄱ'))
+            && (!KoreanifyConfig.get().command.commandSearchKoreanOnly || remaining.chars().anyMatch(c -> c >= 'ㄱ'))
             && KoreanSearchMatcher.matches(this.literal, remaining)) {
             return builder.suggest(this.literal).buildFuture();
         }
