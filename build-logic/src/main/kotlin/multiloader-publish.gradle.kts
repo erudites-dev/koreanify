@@ -125,7 +125,9 @@ gradle.projectsEvaluated {
         }
     }
 
-    tasks.matching { it.name.startsWith("publish") && it.name.contains("Neoforge", ignoreCase = true) }.configureEach {
-        mustRunAfter(tasks.matching { it.name.startsWith("publish") && it.name.contains("Fabric", ignoreCase = true) })
+    val publishTasks = tasks.withType<me.modmuss50.mpp.PublishModTask>()
+    val fabricPublishTasks = publishTasks.matching { it.platform.name.contains("fabric", ignoreCase = true) }
+    publishTasks.matching { it.platform.name.contains("neoforge", ignoreCase = true) }.configureEach {
+        mustRunAfter(fabricPublishTasks)
     }
 }
