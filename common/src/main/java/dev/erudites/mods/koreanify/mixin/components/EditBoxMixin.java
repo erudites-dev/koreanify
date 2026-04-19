@@ -49,6 +49,9 @@ abstract class EditBoxMixin implements PreeditState {
 
     @Inject(method = "setValue", at = @At("HEAD"))
     private void koreanify$clearPreeditOnSetValue(String value, CallbackInfo ci) {
+        if (this.preeditHandler.composition().isEmpty()) {
+            return;
+        }
         this.preeditHandler.clear();
         PreeditComposer.resetIme();
     }
