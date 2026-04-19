@@ -4,7 +4,6 @@
 - Fabric loader 0.19.2
 - NeoForge 26.1.0.x
 
-### Changes (0.1.3)
-- Added Korean IME preedit support for command tab suggestions
-- Added configurable Korean-only command search option
-- Added Sodium config API integration
+### Changes (0.1.4)
+- Refactored config save to preserve comments and support field migration
+- Fixed ime force-enabled on EditBox setValue without composition ([#1](https://github.com/erudites-dev/koreanify/issues/1))
