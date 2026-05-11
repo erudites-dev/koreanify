@@ -24,6 +24,7 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
     }
 
     public CommandConfig command = new CommandConfig();
+    public InputConfig input = new InputConfig();
 
     @Category("명령어 관련 설정 카테고리")
     public static class CommandConfig {
@@ -33,5 +34,15 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
             "false: 영문 입력에도 substring 매칭을 적용합니다. (/mode → /gamemode 등)"
         })
         public boolean commandSearchKoreanOnly = true;
+    }
+
+    @Category("입력 관련 설정 카테고리")
+    public static class InputConfig {
+        @Comment({
+            "Windows IME 전각 전환 방지",
+            "true (기본값): Windows에서 IME가 전각 모드로 전환되면 즉시 반각 모드로 되돌립니다.",
+            "false: 운영체제/IME의 전각/반각 전환을 그대로 둡니다."
+        })
+        public boolean preventWindowsFullwidthSwitching = true;
     }
 }

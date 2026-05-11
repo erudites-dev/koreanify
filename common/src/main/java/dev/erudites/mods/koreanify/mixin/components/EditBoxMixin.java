@@ -37,7 +37,7 @@ abstract class EditBoxMixin implements PreeditState {
     @Shadow
     protected abstract void scrollTo(int pos);
     @Shadow
-    public abstract void insertText(String text);
+    public abstract void insertText(String input);
 
     @Unique
     private final PreeditHandler preeditHandler = new PreeditHandler();

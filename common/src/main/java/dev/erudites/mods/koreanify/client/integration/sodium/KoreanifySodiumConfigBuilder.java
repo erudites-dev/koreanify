@@ -6,6 +6,7 @@ import net.caffeinemc.mods.sodium.api.config.ConfigEntryPoint;
 import net.caffeinemc.mods.sodium.api.config.structure.ConfigBuilder;
 import net.caffeinemc.mods.sodium.api.config.structure.ModOptionsBuilder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 
 public class KoreanifySodiumConfigBuilder implements ConfigEntryPoint {
 
@@ -22,6 +23,21 @@ public class KoreanifySodiumConfigBuilder implements ConfigEntryPoint {
                 .setBinding(
                     value -> KoreanifyConfig.get().command.commandSearchKoreanOnly = value,
                     () -> KoreanifyConfig.get().command.commandSearchKoreanOnly
+                )
+                .setStorageHandler(KoreanifyConfig::save)
+            )
+        );
+        options.addPage(builder.createOptionPage()
+            .setName(Component.translatable("koreanify.config.page.input"))
+            .addOption(builder.createBooleanOption(KoreanifyClientMod.id("prevent_windows_fullwidth_switching"))
+                .setName(Component.translatable("koreanify.config.option.prevent_windows_fullwidth_switching"))
+                .setTooltip(Component.translatable("koreanify.config.option.prevent_windows_fullwidth_switching.tooltip"))
+                .setEnabled(Util.getPlatform() == Util.OS.WINDOWS)
+                .setControlHiddenWhenDisabled(false)
+                .setDefaultValue(true)
+                .setBinding(
+                    value -> KoreanifyConfig.get().input.preventWindowsFullwidthSwitching = value,
+                    () -> KoreanifyConfig.get().input.preventWindowsFullwidthSwitching
                 )
                 .setStorageHandler(KoreanifyConfig::save)
             )

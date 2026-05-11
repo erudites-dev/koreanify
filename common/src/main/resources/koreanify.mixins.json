@@ -11,6 +11,7 @@
     "components.EditBoxMixin",
     "components.MultiLineEditBoxMixin",
     "components.MultilineTextFieldAccessor",
+    "input.KeyboardHandlerMixin",
     "screens.AbstractSignEditScreenMixin",
     "screens.CreativeModeInventoryScreenMixin",
     "screens.RecipeBookComponentMixin",
