@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.input.PreeditEvent;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,7 +27,7 @@ abstract class MultiLineEditBoxMixin {
     private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         this.preeditDispatcher.apply(
             event,
@@ -41,7 +42,13 @@ abstract class MultiLineEditBoxMixin {
     }
 
     @WrapMethod(method = "extractContents")
-    private void koreanify$wrapExtractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
+    private void koreanify$wrapExtractContents(
+        final GuiGraphicsExtractor graphics,
+        final int mouseX,
+        final int mouseY,
+        final float delta,
+        Operation<Void> original
+    ) {
         if (this.preeditDispatcher.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;

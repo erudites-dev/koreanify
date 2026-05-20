@@ -11,7 +11,11 @@ import org.spongepowered.asm.mixin.Mixin;
 abstract class WorldSelectionListMixin {
 
     @WrapMethod(method = "filterAccepts")
-    private boolean koreanify$wrapFilterAccepts(String filter, LevelSummary level, Operation<Boolean> original) {
+    private boolean koreanify$wrapFilterAccepts(
+        final String filter,
+        final LevelSummary level,
+        Operation<Boolean> original
+    ) {
         boolean originalResult = original.call(filter, level);
         if (originalResult) {
             return true;

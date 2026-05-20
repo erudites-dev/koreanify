@@ -11,7 +11,7 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
         return "koreanify.json5";
     }
 
-    public static void initialize(Path configDir) {
+    public static void initialize(final Path configDir) {
         INSTANCE = INSTANCE.setup(configDir);
     }
 

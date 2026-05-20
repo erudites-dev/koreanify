@@ -3,6 +3,7 @@ package dev.erudites.mods.koreanify.client.ime;
 import com.mojang.blaze3d.platform.TextInputManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -15,7 +16,7 @@ public final class PreeditComposer {
 
     private PreeditComposer() {}
 
-    public static MergeResult merge(String original, int cursor, String composition) {
+    public static MergeResult merge(final String original, final int cursor, final @Nullable String composition) {
         String safeComposition = Objects.requireNonNullElse(composition, "");
         if (safeComposition.isEmpty()) {
             return new MergeResult(original, cursor);
@@ -25,19 +26,19 @@ public final class PreeditComposer {
         return new MergeResult(merged, safeCursor + safeComposition.length());
     }
 
-    public static String mergedSearchQuery(String value, int cursor, String composition) {
+    public static String mergedSearchQuery(final @Nullable String value, final int cursor, final String composition) {
         if (value == null) {
             return "";
         }
         return merge(value, cursor, composition).text().toLowerCase(Locale.ROOT);
     }
 
-    public static int availableSpace(int currentLength, int selectionStartPos, int selectionEndPos, int maxLength) {
+    public static int availableSpace(final int currentLength, final int selectionStartPos, final int selectionEndPos, final int maxLength) {
         int selectionLength = Mth.abs(selectionStartPos - selectionEndPos);
         return Math.max(0, maxLength - (currentLength - selectionLength));
     }
 
-    public static String fitComposition(String fullPreedit, String baseValue, int selectionStartPos, int selectionEndPos, Predicate<String> validator) {
+    public static String fitComposition(final String fullPreedit, final String baseValue, final int selectionStartPos, final int selectionEndPos, final Predicate<String> validator) {
         StringBuilder builder = new StringBuilder();
         int minSelectionPos = Math.min(selectionStartPos, selectionEndPos);
         int maxSelectionPos = Math.max(selectionStartPos, selectionEndPos);
@@ -54,7 +55,7 @@ public final class PreeditComposer {
         return builder.toString();
     }
 
-    public static void commitAndResetIme(String text, Consumer<String> inserter) {
+    public static void commitAndResetIme(final String text, final Consumer<String> inserter) {
         inserter.accept(text);
         resetIme();
     }

@@ -1,6 +1,7 @@
 package dev.erudites.mods.koreanify.client.ime;
 
 import net.minecraft.client.input.PreeditEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.function.Predicate;
 
@@ -17,11 +18,11 @@ public final class PreeditHandler {
     }
 
     public PreeditResult handlePreedit(
-        PreeditEvent event,
-        String currentValue,
-        int cursorPos,
-        int highlightPos,
-        int maxLength
+        final @Nullable PreeditEvent event,
+        final String currentValue,
+        final int cursorPos,
+        final int highlightPos,
+        final int maxLength
     ) {
         String prevComposition = this.composition;
         String fullPreedit = (event != null) ? event.fullText() : "";
@@ -46,11 +47,11 @@ public final class PreeditHandler {
     }
 
     public PreeditResult handlePreedit(
-        PreeditEvent event,
-        String currentValue,
-        int cursorPos,
-        int selectCursor,
-        Predicate<String> validator
+        final @Nullable PreeditEvent event,
+        final String currentValue,
+        final int cursorPos,
+        final int selectCursor,
+        final Predicate<String> validator
     ) {
         String prevComposition = this.composition;
         String fullPreedit = (event != null) ? event.fullText() : "";
@@ -75,7 +76,7 @@ public final class PreeditHandler {
         return this.updateComposition(prevComposition, fittedPreedit, currentValue, cursorPos);
     }
 
-    private PreeditResult endComposition(String prevComposition, String currentValue) {
+    private PreeditResult endComposition(final String prevComposition, final String currentValue) {
         this.composition = "";
         return prevComposition.isEmpty()
             ? PreeditResult.UNCHANGED
@@ -83,10 +84,10 @@ public final class PreeditHandler {
     }
 
     private PreeditResult updateComposition(
-        String prevComposition,
-        String newComposition,
-        String currentValue,
-        int cursorPos
+        final String prevComposition,
+        final String newComposition,
+        final String currentValue,
+        final int cursorPos
     ) {
         if (prevComposition.equals(newComposition)) {
             return PreeditResult.UNCHANGED;

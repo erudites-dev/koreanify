@@ -11,6 +11,7 @@ import net.minecraft.client.input.PreeditEvent;
 import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -31,7 +32,7 @@ abstract class CreativeModeInventoryScreenMixin {
     protected abstract void refreshSearchResults();
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
-    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
             this.refreshSearchResults();
         }

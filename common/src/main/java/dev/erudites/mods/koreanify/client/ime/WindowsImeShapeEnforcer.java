@@ -23,7 +23,7 @@ public final class WindowsImeShapeEnforcer {
 
     private WindowsImeShapeEnforcer() {}
 
-    public static void forceHalfwidthIfEnabled(Window window) {
+    public static void forceHalfwidthIfEnabled(final Window window) {
         if (unavailable
             || Util.getPlatform() != Util.OS.WINDOWS
             || !KoreanifyConfig.get().input.preventWindowsFullwidthSwitching
@@ -38,7 +38,7 @@ public final class WindowsImeShapeEnforcer {
         }
     }
 
-    private static void forceHalfwidth(Window window) {
+    private static void forceHalfwidth(final Window window) {
         long hwnd = GLFWNativeWin32.glfwGetWin32Window(window.handle());
         if (hwnd == 0L) {
             return;
@@ -67,7 +67,7 @@ public final class WindowsImeShapeEnforcer {
         }
     }
 
-    private static MemorySegment invokeAddress(MethodHandle handle, Object... args) {
+    private static MemorySegment invokeAddress(final MethodHandle handle, final Object... args) {
         try {
             return (MemorySegment) handle.invokeWithArguments(args);
         } catch (Throwable e) {
@@ -75,7 +75,7 @@ public final class WindowsImeShapeEnforcer {
         }
     }
 
-    private static int invokeInt(MethodHandle handle, Object... args) {
+    private static int invokeInt(final MethodHandle handle, final Object... args) {
         try {
             return (int) handle.invokeWithArguments(args);
         } catch (Throwable e) {
@@ -93,7 +93,7 @@ public final class WindowsImeShapeEnforcer {
 
         private Imm32() {}
 
-        private static MethodHandle downcall(String name, FunctionDescriptor descriptor) {
+        private static MethodHandle downcall(final String name, final FunctionDescriptor descriptor) {
             return LINKER.downcallHandle(SYMBOLS.find(name).orElseThrow(), descriptor);
         }
     }

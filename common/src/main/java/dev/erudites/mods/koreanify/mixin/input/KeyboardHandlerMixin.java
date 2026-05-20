@@ -23,7 +23,7 @@ abstract class KeyboardHandlerMixin {
         )
     )
     private void koreanify$wrapKeyboardCallbacks(
-        Window window,
+        final Window window,
         GLFWKeyCallbackI keyPressCallback,
         GLFWCharCallbackI charTypedCallback,
         GLFWPreeditCallbackI preeditCallback,

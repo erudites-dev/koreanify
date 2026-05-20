@@ -1,5 +1,7 @@
 package dev.erudites.mods.koreanify.client.search;
 
+import org.jspecify.annotations.Nullable;
+
 public final class KoreanSearchMatcher {
 
     private static final int HANGUL_BASE = 0xAC00;
@@ -29,20 +31,20 @@ public final class KoreanSearchMatcher {
 
     private KoreanSearchMatcher() {}
 
-    public static boolean isChoseong(char ch) {
+    public static boolean isChoseong(final char ch) {
         int index = ch - 'ㄱ';
         return index >= 0 && index < IS_CHOSEONG.length && IS_CHOSEONG[index];
     }
 
     // Reverse the syllable formula: choseong_index = (syllable - BASE) / 588
-    public static char getChoseong(char ch) {
+    public static char getChoseong(final char ch) {
         if (ch >= HANGUL_BASE && ch <= HANGUL_END) {
             return CHOSEONG_TABLE[(ch - HANGUL_BASE) / SYLLABLE_BLOCK];
         }
         return ch;
     }
 
-    public static boolean matches(String target, String query) {
+    public static boolean matches(final @Nullable String target, final @Nullable String query) {
         if (query == null || query.isEmpty()) {
             return true;
         }
@@ -80,7 +82,7 @@ public final class KoreanSearchMatcher {
     }
 
     // Decomposes 한글 → ㅎㅏㄴㄱㅡㄹ
-    public static String toJamo(String text) {
+    public static String toJamo(final @Nullable String text) {
         if (text == null) {
             return "";
         }
@@ -102,7 +104,7 @@ public final class KoreanSearchMatcher {
         return builder.toString();
     }
 
-    private static boolean matchesChoseongOnly(char[] targetBuf, int targetLen, char[] queryBuf, int queryLen) {
+    private static boolean matchesChoseongOnly(final char[] targetBuf, final int targetLen, final char[] queryBuf, final int queryLen) {
         char queryFirst = queryBuf[0];
         int limit = targetLen - queryLen;
         for (int i = 0; i <= limit; i++) {
@@ -123,7 +125,7 @@ public final class KoreanSearchMatcher {
         return false;
     }
 
-    private static boolean matchesGeneral(char[] targetBuf, int targetLen, char[] queryBuf, int queryLen) {
+    private static boolean matchesGeneral(final char[] targetBuf, final int targetLen, final char[] queryBuf, final int queryLen) {
         char queryFirst = queryBuf[0];
         int limit = targetLen - queryLen;
         for (int i = 0; i <= limit; i++) {
@@ -144,7 +146,7 @@ public final class KoreanSearchMatcher {
         return false;
     }
 
-    private static boolean mismatchChar(char targetChar, char queryChar) {
+    private static boolean mismatchChar(final char targetChar, final char queryChar) {
         if (targetChar == queryChar) {
             return false;
         }
@@ -162,7 +164,7 @@ public final class KoreanSearchMatcher {
     }
 
     // Strips spaces, lowercases ASCII in a single pass into pre-allocated buf.
-    private static int normalizeInto(String source, char[] buf) {
+    private static int normalizeInto(final String source, final char[] buf) {
         int len = 0;
         for (int i = 0, n = source.length(); i < n; i++) {
             char ch = source.charAt(i);
@@ -177,7 +179,7 @@ public final class KoreanSearchMatcher {
         return len;
     }
 
-    private static boolean checkAllChoseong(char[] buf, int len) {
+    private static boolean checkAllChoseong(final char[] buf, final int len) {
         for (int i = 0; i < len; i++) {
             if (!isChoseong(buf[i])) {
                 return false;

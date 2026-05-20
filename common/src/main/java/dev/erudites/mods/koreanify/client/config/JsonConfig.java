@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.erudites.mods.koreanify.client.KoreanifyClientMod;
+import org.jspecify.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,11 +22,11 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create();
 
-    private Path configDir;
+    private @Nullable Path configDir;
 
     protected abstract String fileName();
 
-    public T setup(Path configDir) {
+    public T setup(final Path configDir) {
         T loaded = this.loadFrom(configDir);
         ((JsonConfig<?>) loaded).configDir = configDir;
         return loaded;
@@ -38,7 +39,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
     }
 
     @SuppressWarnings("unchecked")
-    public T loadFrom(Path configDir) {
+    public T loadFrom(final Path configDir) {
         Path file = configDir.resolve(this.fileName());
         if (!Files.exists(file)) {
             this.saveTo(configDir);
@@ -58,7 +59,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         }
     }
 
-    public void saveTo(Path configDir) {
+    public void saveTo(final Path configDir) {
         Path file = configDir.resolve(this.fileName());
         try {
             Files.createDirectories(configDir);
@@ -83,14 +84,14 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         private final String[] lines;
         private final List<String> output;
 
-        private Merger(String existing, JsonConfig<?> config) {
+        private Merger(final String existing, final JsonConfig<?> config) {
             this.config = config;
             this.topFields = instanceFields(config.getClass());
             this.lines = existing.split("\n", -1);
             this.output = new ArrayList<>(lines.length + 16);
         }
 
-        static String merge(String existing, JsonConfig<?> config) {
+        static String merge(final String existing, final JsonConfig<?> config) {
             return new Merger(existing, config).run();
         }
 
@@ -116,7 +117,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return String.join("\n", output);
         }
 
-        private int tryMatchTopField(int i, Set<String> handledTopKeys) {
+        private int tryMatchTopField(final int i, final Set<String> handledTopKeys) {
             String line = lines[i];
             for (Field topField : topFields) {
                 String key = toSnakeCase(topField);
@@ -139,7 +140,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return i;
         }
 
-        private int mergeCategoryBlock(int i, Class<?> catType, Object catObj) {
+        private int mergeCategoryBlock(int i, final Class<?> catType, final Object catObj) {
             Field[] catFields = instanceFields(catType);
             Set<String> handledCatKeys = new HashSet<>();
             while (i < lines.length) {
@@ -160,7 +161,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return i;
         }
 
-        private int tryMatchCatField(String line, int i, Field[] catFields, Object catObj, Set<String> handledCatKeys) {
+        private int tryMatchCatField(final String line, final int i, final Field[] catFields, final Object catObj, final Set<String> handledCatKeys) {
             for (Field catField : catFields) {
                 String key = toSnakeCase(catField);
                 if (!handledCatKeys.contains(key) && !isConfigCategory(catField.getType()) && matchesFieldLine(line, key)) {
@@ -174,7 +175,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return i;
         }
 
-        private void insertMissingFields(Field[] fields, Object obj, String indent, Set<String> handled) {
+        private void insertMissingFields(final Field[] fields, final Object obj, final String indent, final Set<String> handled) {
             List<Field> missing = new ArrayList<>();
             for (Field f : fields) {
                 if (!handled.contains(toSnakeCase(f))) {
@@ -205,19 +206,19 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             }
         }
 
-        private static boolean isClosingBrace(String trimmed) {
+        private static boolean isClosingBrace(final String trimmed) {
             return trimmed.equals("}") || trimmed.equals("},");
         }
 
-        private static boolean matchesCategoryStart(String line, String key) {
+        private static boolean matchesCategoryStart(final String line, final String key) {
             return line.matches("\\s*\"" + Pattern.quote(key) + "\"\\s*:\\s*\\{.*");
         }
 
-        private static boolean matchesFieldLine(String line, String key) {
+        private static boolean matchesFieldLine(final String line, final String key) {
             return line.matches("\\s*\"" + Pattern.quote(key) + "\"\\s*:[^{].*");
         }
 
-        private static String replaceValue(String line, String key, Object newValue) {
+        private static String replaceValue(final String line, final String key, final Object newValue) {
             Pattern pattern = Pattern.compile("^(\\s*\"" + Pattern.quote(key) + "\"\\s*:\\s*)(.*?)(,?)(\\s*)$");
             Matcher matcher = pattern.matcher(line);
             if (matcher.find()) {
@@ -226,12 +227,12 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return line;
         }
 
-        private static String toSnakeCase(Field field) {
+        private static String toSnakeCase(final Field field) {
             return FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES.translateName(field);
         }
     }
 
-    private static String serialize(JsonConfig<?> config) {
+    private static String serialize(final JsonConfig<?> config) {
         StringBuilder builder = new StringBuilder();
         builder.append("{\n");
         appendFields(builder, config, "  ");
@@ -239,7 +240,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         return builder.toString();
     }
 
-    private static void appendFields(StringBuilder builder, Object obj, String indent) {
+    private static void appendFields(final StringBuilder builder, final Object obj, final String indent) {
         Field[] fields = instanceFields(obj.getClass());
         for (int i = 0; i < fields.length; i++) {
             appendComment(builder, fields[i], indent);
@@ -247,7 +248,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         }
     }
 
-    private static void appendComment(StringBuilder builder, Field field, String indent) {
+    private static void appendComment(final StringBuilder builder, final Field field, final String indent) {
         Comment comment = field.getAnnotation(Comment.class);
         if (comment == null) {
             return;
@@ -258,7 +259,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         appendValueHint(builder, field.getType(), indent);
     }
 
-    private static void appendValueHint(StringBuilder builder, Class<?> type, String indent) {
+    private static void appendValueHint(final StringBuilder builder, final Class<?> type, final String indent) {
         if (type == boolean.class || type == Boolean.class) {
             builder.append(indent).append("// values: true / false\n");
         } else if (type.isEnum()) {
@@ -269,7 +270,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         }
     }
 
-    private static void appendEntry(StringBuilder builder, Field field, Object obj, String indent, boolean trailingComma) {
+    private static void appendEntry(final StringBuilder builder, final Field field, final Object obj, final String indent, final boolean trailingComma) {
         String key = FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES.translateName(field);
         String comma = trailingComma ? "," : "";
         try {
@@ -307,14 +308,14 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         }
     }
 
-    private static String formatValue(Object value) {
+    private static String formatValue(final Object value) {
         return switch (value) {
             case String s -> "\"" + s.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
             default -> String.valueOf(value);
         };
     }
 
-    private static String stripComments(String source) {
+    private static String stripComments(final String source) {
         StringBuilder builder = new StringBuilder(source.length());
         int i = 0;
         while (i < source.length()) {
@@ -331,7 +332,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         return builder.toString();
     }
 
-    private static int copyString(String source, StringBuilder builder, int i) {
+    private static int copyString(final String source, final StringBuilder builder, int i) {
         builder.append(source.charAt(i++));
         while (i < source.length()) {
             char c = source.charAt(i++);
@@ -345,7 +346,7 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         return i;
     }
 
-    private static int skipOrCopySlash(String source, StringBuilder builder, int i) {
+    private static int skipOrCopySlash(final String source, final StringBuilder builder, int i) {
         char next = source.charAt(i + 1);
         if (next == '/') {
             while (i < source.length() && source.charAt(i) != '\n') {
@@ -364,11 +365,11 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         return i + 1;
     }
 
-    private static boolean isConfigCategory(Class<?> type) {
+    private static boolean isConfigCategory(final Class<?> type) {
         return type.isAnnotationPresent(Category.class);
     }
 
-    private static Field[] instanceFields(Class<?> clazz) {
+    private static Field[] instanceFields(final Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
             .filter(f -> !Modifier.isStatic(f.getModifiers()))
             .toArray(Field[]::new);

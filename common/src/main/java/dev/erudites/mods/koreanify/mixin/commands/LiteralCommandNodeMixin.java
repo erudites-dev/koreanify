@@ -22,8 +22,8 @@ abstract class LiteralCommandNodeMixin {
 
     @WrapMethod(method = "listSuggestions")
     private CompletableFuture<Suggestions> koreanify$wrapListSuggestions(
-        CommandContext<?> context,
-        SuggestionsBuilder builder,
+        final CommandContext<?> context,
+        final SuggestionsBuilder builder,
         Operation<CompletableFuture<Suggestions>> original
     ) {
         String remaining = builder.getRemaining();

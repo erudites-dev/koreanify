@@ -14,11 +14,11 @@ public final class KoreanifyClientMod {
 
     private KoreanifyClientMod() {}
 
-    public static void initializeConfig(Path configDir) {
+    public static void initializeConfig(final Path configDir) {
         KoreanifyConfig.initialize(configDir);
     }
 
-    public static Identifier id(String path) {
+    public static Identifier id(final String path) {
         return Identifier.fromNamespaceAndPath(MODID, path);
     }
 }

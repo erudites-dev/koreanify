@@ -29,14 +29,14 @@ abstract class AbstractSignEditScreenMixin {
     private String[] messages;
     @Shadow
     private int line;
-    @Shadow @Nullable
-    private TextFieldHelper signField;
+    @Shadow
+    private @Nullable TextFieldHelper signField;
 
     @Unique
     private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (this.signField == null) {
             this.preeditDispatcher.clear();
             cir.setReturnValue(true);
@@ -55,7 +55,11 @@ abstract class AbstractSignEditScreenMixin {
     }
 
     @WrapMethod(method = "extractSignText")
-    private void koreanify$wrapRenderSignText(GuiGraphicsExtractor graphics, Vector2f cursorPosOutput, Operation<Void> original) {
+    private void koreanify$wrapRenderSignText(
+        final GuiGraphicsExtractor graphics,
+        final Vector2f cursorPosOutput,
+        Operation<Void> original
+    ) {
         if (this.preeditDispatcher.composition().isEmpty() || this.signField == null) {
             original.call(graphics, cursorPosOutput);
             return;

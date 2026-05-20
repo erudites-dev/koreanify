@@ -19,13 +19,13 @@ public final class PreeditDispatcher {
     }
 
     public void apply(
-        PreeditEvent event,
-        String currentValue,
-        int cursorPos,
-        int highlightPos,
-        int maxLength,
-        Consumer<String> inserter,
-        @Nullable Consumer<String> responder
+        final @Nullable PreeditEvent event,
+        final String currentValue,
+        final int cursorPos,
+        final int highlightPos,
+        final int maxLength,
+        final Consumer<String> inserter,
+        final @Nullable Consumer<String> responder
     ) {
         run(
             this.handler.handlePreedit(event, currentValue, cursorPos, highlightPos, maxLength),
@@ -35,13 +35,13 @@ public final class PreeditDispatcher {
     }
 
     public void apply(
-        PreeditEvent event,
-        String currentValue,
-        int cursorPos,
-        int selectCursor,
-        Predicate<String> validator,
-        Consumer<String> inserter,
-        @Nullable Consumer<String> responder
+        final @Nullable PreeditEvent event,
+        final String currentValue,
+        final int cursorPos,
+        final int selectCursor,
+        final Predicate<String> validator,
+        final Consumer<String> inserter,
+        final @Nullable Consumer<String> responder
     ) {
         run(
             this.handler.handlePreedit(event, currentValue, cursorPos, selectCursor, validator),
@@ -51,9 +51,9 @@ public final class PreeditDispatcher {
     }
 
     private static void run(
-        PreeditResult result,
-        Consumer<String> inserter,
-        @Nullable Consumer<String> responder
+        final PreeditResult result,
+        final Consumer<String> inserter,
+        final @Nullable Consumer<String> responder
     ) {
         switch (result) {
             case PreeditResult.Commit(String text) -> PreeditComposer.commitAndResetIme(text, inserter);

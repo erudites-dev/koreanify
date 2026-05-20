@@ -32,8 +32,8 @@ abstract class EditBoxMixin implements PreeditState {
     private int cursorPos;
     @Shadow
     private int highlightPos;
-    @Shadow @Nullable
-    private Consumer<String> responder;
+    @Shadow
+    private @Nullable Consumer<String> responder;
     @Shadow
     protected abstract void scrollTo(int pos);
     @Shadow
@@ -48,7 +48,7 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @Inject(method = "setValue", at = @At("HEAD"))
-    private void koreanify$clearPreeditOnSetValue(String value, CallbackInfo ci) {
+    private void koreanify$clearPreeditOnSetValue(final String value, CallbackInfo ci) {
         if (this.preeditDispatcher.composition().isEmpty()) {
             return;
         }
@@ -57,7 +57,7 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         this.preeditDispatcher.apply(
             event,
             this.value,
@@ -71,7 +71,13 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @WrapMethod(method = "extractWidgetRenderState")
-    private void koreanify$wrapExtractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
+    private void koreanify$wrapExtractWidgetRenderState(
+        final GuiGraphicsExtractor graphics,
+        final int mouseX,
+        final int mouseY,
+        final float delta,
+        Operation<Void> original
+    ) {
         if (this.preeditDispatcher.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;

@@ -30,12 +30,12 @@ import java.util.stream.Stream;
 @Mixin(RecipeBookComponent.class)
 abstract class RecipeBookComponentMixin {
 
-    @Shadow @Nullable
-    private RecipeBookTabButton selectedTab;
+    @Shadow
+    private @Nullable RecipeBookTabButton selectedTab;
     @Shadow
     protected Minecraft minecraft;
-    @Shadow @Nullable
-    private EditBox searchBox;
+    @Shadow
+    private @Nullable EditBox searchBox;
     @Shadow
     private String lastSearch;
     @Shadow
@@ -52,7 +52,7 @@ abstract class RecipeBookComponentMixin {
     protected abstract void updateCollections(boolean resetPage, boolean isFiltering);
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
-    private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
             this.checkSearchStringUpdate();
         }
@@ -99,7 +99,11 @@ abstract class RecipeBookComponentMixin {
             target = "Lnet/minecraft/client/searchtree/SearchTree;search(Ljava/lang/String;)Ljava/util/List;"
         )
     )
-    private List<RecipeCollection> koreanify$wrapSearch(SearchTree<RecipeCollection> instance, String searchTarget, Operation<List<RecipeCollection>> original) {
+    private List<RecipeCollection> koreanify$wrapSearch(
+        final SearchTree<RecipeCollection> instance,
+        final String searchTarget,
+        Operation<List<RecipeCollection>> original
+    ) {
         if (this.searchBox == null) {
             return original.call(instance, searchTarget);
         }

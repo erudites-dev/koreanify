@@ -52,8 +52,8 @@ abstract class CommandSuggestionsMixin {
 
     @WrapMethod(method = "calculateSuggestionSuffix")
     private static @Nullable String koreanify$wrapCalculateSuggestionSuffix(
-        String contents,
-        String suggestion,
+        final String contents,
+        final String suggestion,
         Operation<String> original
     ) {
         String result = original.call(contents, suggestion);
