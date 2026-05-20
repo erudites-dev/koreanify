@@ -3,7 +3,7 @@ package dev.erudites.mods.koreanify.mixin.components;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
-import dev.erudites.mods.koreanify.client.ime.PreeditHandler;
+import dev.erudites.mods.koreanify.client.ime.PreeditDispatcher;
 import dev.erudites.mods.koreanify.client.ime.PreeditState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -40,25 +40,25 @@ abstract class EditBoxMixin implements PreeditState {
     public abstract void insertText(String input);
 
     @Unique
-    private final PreeditHandler preeditHandler = new PreeditHandler();
+    private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
     @Override
     public String koreanify$composition() {
-        return this.preeditHandler.composition();
+        return this.preeditDispatcher.composition();
     }
 
     @Inject(method = "setValue", at = @At("HEAD"))
     private void koreanify$clearPreeditOnSetValue(String value, CallbackInfo ci) {
-        if (this.preeditHandler.composition().isEmpty()) {
+        if (this.preeditDispatcher.composition().isEmpty()) {
             return;
         }
-        this.preeditHandler.clear();
+        this.preeditDispatcher.clear();
         PreeditComposer.resetIme();
     }
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
     private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
-        this.preeditHandler.handlePreedit(
+        this.preeditDispatcher.apply(
             event,
             this.value,
             this.cursorPos,
@@ -72,7 +72,7 @@ abstract class EditBoxMixin implements PreeditState {
 
     @WrapMethod(method = "extractWidgetRenderState")
     private void koreanify$wrapExtractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
-        if (this.preeditHandler.composition().isEmpty()) {
+        if (this.preeditDispatcher.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;
         }
@@ -80,10 +80,10 @@ abstract class EditBoxMixin implements PreeditState {
         int previousCursor = this.cursorPos;
         int previousHighlight = this.highlightPos;
         int previousDisplay = this.displayPos;
-        PreeditComposer.PreeditResult result = PreeditComposer.merge(
+        PreeditComposer.MergeResult result = PreeditComposer.merge(
             this.value,
             this.cursorPos,
-            this.preeditHandler.composition()
+            this.preeditDispatcher.composition()
         );
         this.value = result.text();
         this.cursorPos = result.cursor();

@@ -3,7 +3,7 @@ package dev.erudites.mods.koreanify.mixin.components;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
-import dev.erudites.mods.koreanify.client.ime.PreeditHandler;
+import dev.erudites.mods.koreanify.client.ime.PreeditDispatcher;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
@@ -23,12 +23,12 @@ abstract class MultiLineEditBoxMixin {
     private MultilineTextField textField;
 
     @Unique
-    private final PreeditHandler preeditHandler = new PreeditHandler();
+    private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
     private void koreanify$preeditUpdated(PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
-        this.preeditHandler.handlePreedit(
+        this.preeditDispatcher.apply(
             event,
             this.textField.value(),
             this.textField.cursor(),
@@ -42,16 +42,16 @@ abstract class MultiLineEditBoxMixin {
 
     @WrapMethod(method = "extractContents")
     private void koreanify$wrapExtractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta, Operation<Void> original) {
-        if (this.preeditHandler.composition().isEmpty()) {
+        if (this.preeditDispatcher.composition().isEmpty()) {
             original.call(graphics, mouseX, mouseY, delta);
             return;
         }
         String previousValue = this.textField.value();
         int previousCursor = this.textField.cursor();
-        PreeditComposer.PreeditResult result = PreeditComposer.merge(
+        PreeditComposer.MergeResult result = PreeditComposer.merge(
             previousValue,
             previousCursor,
-            this.preeditHandler.composition()
+            this.preeditDispatcher.composition()
         );
         this.textField.setValue(result.text());
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;

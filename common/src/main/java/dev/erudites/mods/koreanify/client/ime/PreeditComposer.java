@@ -11,18 +11,18 @@ import java.util.function.Predicate;
 
 public final class PreeditComposer {
 
-    public record PreeditResult(String text, int cursor) {}
+    public record MergeResult(String text, int cursor) {}
 
     private PreeditComposer() {}
 
-    public static PreeditResult merge(String original, int cursor, String composition) {
+    public static MergeResult merge(String original, int cursor, String composition) {
         String safeComposition = Objects.requireNonNullElse(composition, "");
         if (safeComposition.isEmpty()) {
-            return new PreeditResult(original, cursor);
+            return new MergeResult(original, cursor);
         }
         int safeCursor = Mth.clamp(cursor, 0, original.length());
         String merged = original.substring(0, safeCursor) + safeComposition + original.substring(safeCursor);
-        return new PreeditResult(merged, safeCursor + safeComposition.length());
+        return new MergeResult(merged, safeCursor + safeComposition.length());
     }
 
     public static String mergedSearchQuery(String value, int cursor, String composition) {

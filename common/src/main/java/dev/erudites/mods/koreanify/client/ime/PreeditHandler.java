@@ -1,9 +1,7 @@
 package dev.erudites.mods.koreanify.client.ime;
 
 import net.minecraft.client.input.PreeditEvent;
-import org.jspecify.annotations.Nullable;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class PreeditHandler {
@@ -14,22 +12,21 @@ public final class PreeditHandler {
         return this.composition;
     }
 
-    public void handlePreedit(
+    public void clear() {
+        this.composition = "";
+    }
+
+    public PreeditResult handlePreedit(
         PreeditEvent event,
         String currentValue,
         int cursorPos,
         int highlightPos,
-        int maxLength,
-        Consumer<String> inserter,
-        @Nullable Consumer<String> responder
+        int maxLength
     ) {
+        String prevComposition = this.composition;
         String fullPreedit = (event != null) ? event.fullText() : "";
         if (fullPreedit.isEmpty()) {
-            this.composition = "";
-            if (responder != null) {
-                responder.accept(currentValue);
-            }
-            return;
+            return this.endComposition(prevComposition, currentValue);
         }
         int available = PreeditComposer.availableSpace(
             currentValue.length(),
@@ -39,77 +36,64 @@ public final class PreeditHandler {
         );
         if (available == 0) {
             this.composition = "";
-            return;
+            return PreeditResult.UNCHANGED;
         }
         if (fullPreedit.length() > available) {
-            PreeditComposer.commitAndResetIme(
-                fullPreedit.substring(0, available),
-                inserter
-            );
             this.composition = "";
-            return;
+            return new PreeditResult.Commit(fullPreedit.substring(0, available));
         }
-        this.composition = fullPreedit;
-        if (responder != null) {
-            responder.accept(
-                PreeditComposer.merge(
-                    currentValue,
-                    cursorPos,
-                    this.composition
-                ).text()
-            );
-        }
+        return this.updateComposition(prevComposition, fullPreedit, currentValue, cursorPos);
     }
 
-    public void handlePreedit(
+    public PreeditResult handlePreedit(
         PreeditEvent event,
         String currentValue,
         int cursorPos,
         int selectCursor,
-        Predicate<String> validator,
-        Consumer<String> inserter,
-        @Nullable Consumer<String> responder
+        Predicate<String> validator
     ) {
+        String prevComposition = this.composition;
         String fullPreedit = (event != null) ? event.fullText() : "";
         if (fullPreedit.isEmpty()) {
-            this.composition = "";
-            if (responder != null) {
-                responder.accept(currentValue);
-            }
-            return;
+            return this.endComposition(prevComposition, currentValue);
         }
-        String valid = PreeditComposer.fitComposition(
+        String fittedPreedit = PreeditComposer.fitComposition(
             fullPreedit,
             currentValue,
             cursorPos,
             selectCursor,
             validator
         );
-        if (valid.isEmpty()) {
+        if (fittedPreedit.isEmpty()) {
             this.composition = "";
-            return;
+            return PreeditResult.UNCHANGED;
         }
-        if (valid.length() < fullPreedit.length()) {
-            PreeditComposer.commitAndResetIme(
-                valid,
-                inserter
-            );
+        if (fittedPreedit.length() < fullPreedit.length()) {
             this.composition = "";
-            return;
+            return new PreeditResult.Commit(fittedPreedit);
         }
-        this.composition = valid;
-        if (responder != null) {
-            responder.accept(
-                PreeditComposer.merge(
-                    currentValue,
-                    cursorPos,
-                    this.composition
-                ).text()
-            );
-        }
+        return this.updateComposition(prevComposition, fittedPreedit, currentValue, cursorPos);
     }
 
-    public void clear() {
+    private PreeditResult endComposition(String prevComposition, String currentValue) {
         this.composition = "";
+        return prevComposition.isEmpty()
+            ? PreeditResult.UNCHANGED
+            : new PreeditResult.Notify(currentValue);
+    }
+
+    private PreeditResult updateComposition(
+        String prevComposition,
+        String newComposition,
+        String currentValue,
+        int cursorPos
+    ) {
+        if (prevComposition.equals(newComposition)) {
+            return PreeditResult.UNCHANGED;
+        }
+        this.composition = newComposition;
+        return new PreeditResult.Notify(
+            PreeditComposer.merge(currentValue, cursorPos, newComposition).text()
+        );
     }
 }

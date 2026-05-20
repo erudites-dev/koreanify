@@ -37,7 +37,7 @@ abstract class CommandSuggestionsMixin {
         String value = this.input.getValue();
         int cursor = box.koreanify$cursorPos();
         int highlight = box.koreanify$highlightPos();
-        PreeditComposer.PreeditResult result = PreeditComposer.merge(value, cursor, composition);
+        PreeditComposer.MergeResult result = PreeditComposer.merge(value, cursor, composition);
         box.koreanify$value(result.text());
         box.koreanify$cursorPos(result.cursor());
         box.koreanify$highlightPos(result.cursor());
