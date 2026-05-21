@@ -57,7 +57,7 @@ abstract class EditBoxMixin implements PreeditState {
     }
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         this.preeditDispatcher.apply(
             event,
             this.value,

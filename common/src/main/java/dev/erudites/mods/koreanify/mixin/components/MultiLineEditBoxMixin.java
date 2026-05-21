@@ -27,7 +27,7 @@ abstract class MultiLineEditBoxMixin {
     private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
     @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
-    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         this.preeditDispatcher.apply(
             event,

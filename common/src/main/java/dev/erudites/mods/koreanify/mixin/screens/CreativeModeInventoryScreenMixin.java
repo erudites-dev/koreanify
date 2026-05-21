@@ -32,7 +32,7 @@ abstract class CreativeModeInventoryScreenMixin {
     protected abstract void refreshSearchResults();
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
-    private void koreanify$preeditUpdated(@Nullable final PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+    private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
             this.refreshSearchResults();
         }
