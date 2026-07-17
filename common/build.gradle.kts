@@ -2,7 +2,7 @@ plugins {
     id("multiloader-base")
     id("java-library")
 
-    id("net.fabricmc.fabric-loom") version ("1.16.+")
+    id("net.fabricmc.fabric-loom") version ("1.17.+")
 }
 
 base {
@@ -12,11 +12,11 @@ base {
 dependencies {
     minecraft(group = "com.mojang", name = "minecraft", version = BuildConfig.MINECRAFT_VERSION)
 
-    compileOnly("io.github.llamalad7:mixinextras-common:0.5.3")
-    annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.3")
+    compileOnly("io.github.llamalad7:mixinextras-common:0.5.4")
+    annotationProcessor("io.github.llamalad7:mixinextras-common:0.5.4")
 
     // https://mvnrepository.com/artifact/net.fabricmc/sponge-mixin
-    compileOnly("net.fabricmc:sponge-mixin:0.17.0+mixin.0.8.7")
+    compileOnly("net.fabricmc:sponge-mixin:0.17.3+mixin.0.8.7")
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
     compileOnly("net.caffeinemc:sodium-fabric-api:${BuildConfig.SODIUM_VERSION}")
