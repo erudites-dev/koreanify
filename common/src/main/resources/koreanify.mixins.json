@@ -9,6 +9,7 @@
     "commands.LiteralCommandNodeMixin",
     "components.EditBoxAccessor",
     "components.EditBoxMixin",
+    "components.IMEPreeditOverlayMixin",
     "components.MultiLineEditBoxMixin",
     "components.MultilineTextFieldAccessor",
     "input.KeyboardHandlerMixin",

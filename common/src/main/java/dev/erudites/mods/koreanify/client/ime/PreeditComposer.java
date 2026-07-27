@@ -1,9 +1,9 @@
 package dev.erudites.mods.koreanify.client.ime;
 
-import com.mojang.blaze3d.platform.TextInputManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
 import org.jspecify.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -61,8 +61,6 @@ public final class PreeditComposer {
     }
 
     public static void resetIme() {
-        TextInputManager textInputManager = Minecraft.getInstance().textInputManager();
-        textInputManager.onTextInputFocusChange(false);
-        textInputManager.onTextInputFocusChange(true);
+        GLFW.glfwResetPreeditText(Minecraft.getInstance().getWindow().handle());
     }
 }

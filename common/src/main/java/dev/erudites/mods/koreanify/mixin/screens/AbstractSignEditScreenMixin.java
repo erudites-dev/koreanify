@@ -4,8 +4,10 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
 import dev.erudites.mods.koreanify.client.ime.PreeditDispatcher;
+import dev.erudites.mods.koreanify.client.ime.PreeditOverlayState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.IMEPreeditOverlay;
 import net.minecraft.client.gui.font.TextFieldHelper;
 import net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen;
 import net.minecraft.client.input.PreeditEvent;
@@ -31,15 +33,19 @@ abstract class AbstractSignEditScreenMixin {
     private int line;
     @Shadow
     private @Nullable TextFieldHelper signField;
+    @Shadow
+    private @Nullable IMEPreeditOverlay preeditOverlay;
 
     @Unique
     private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
-    @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "preeditUpdated", at = @At("RETURN"))
     private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (this.preeditOverlay != null) {
+            ((PreeditOverlayState) this.preeditOverlay).koreanify$markInlined();
+        }
         if (this.signField == null) {
             this.preeditDispatcher.clear();
-            cir.setReturnValue(true);
             return;
         }
         this.preeditDispatcher.apply(
@@ -51,7 +57,6 @@ abstract class AbstractSignEditScreenMixin {
             this.signField::insertText,
             null
         );
-        cir.setReturnValue(true);
     }
 
     @WrapMethod(method = "extractSignText")
@@ -67,11 +72,7 @@ abstract class AbstractSignEditScreenMixin {
         String previousMessage = this.messages[this.line];
         int previousCursorPos = this.signField.getCursorPos();
         int previousSelectionPos = this.signField.getSelectionPos();
-        PreeditComposer.MergeResult result = PreeditComposer.merge(
-            previousMessage,
-            previousCursorPos,
-            this.preeditDispatcher.composition()
-        );
+        PreeditComposer.MergeResult result = this.preeditDispatcher.merge(previousMessage, previousCursorPos);
         this.messages[this.line] = result.text();
         this.signField.setCursorPos(result.cursor());
         this.signField.setSelectionPos(result.cursor());

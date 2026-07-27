@@ -4,7 +4,9 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
 import dev.erudites.mods.koreanify.client.ime.PreeditDispatcher;
+import dev.erudites.mods.koreanify.client.ime.PreeditOverlayState;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.IMEPreeditOverlay;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.components.MultilineTextField;
 import net.minecraft.client.input.PreeditEvent;
@@ -22,12 +24,17 @@ abstract class MultiLineEditBoxMixin {
 
     @Shadow @Final
     private MultilineTextField textField;
+    @Shadow
+    private @Nullable IMEPreeditOverlay preeditOverlay;
 
     @Unique
     private final PreeditDispatcher preeditDispatcher = new PreeditDispatcher();
 
-    @Inject(method = "preeditUpdated", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "preeditUpdated", at = @At("RETURN"))
     private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (this.preeditOverlay != null) {
+            ((PreeditOverlayState) this.preeditOverlay).koreanify$markInlined();
+        }
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         this.preeditDispatcher.apply(
             event,
@@ -38,7 +45,6 @@ abstract class MultiLineEditBoxMixin {
             this.textField::insertText,
             field.koreanify$valueListener()
         );
-        cir.setReturnValue(true);
     }
 
     @WrapMethod(method = "extractContents")
@@ -55,11 +61,7 @@ abstract class MultiLineEditBoxMixin {
         }
         String previousValue = this.textField.value();
         int previousCursor = this.textField.cursor();
-        PreeditComposer.MergeResult result = PreeditComposer.merge(
-            previousValue,
-            previousCursor,
-            this.preeditDispatcher.composition()
-        );
+        PreeditComposer.MergeResult result = this.preeditDispatcher.merge(previousValue, previousCursor);
         this.textField.setValue(result.text());
         MultilineTextFieldAccessor field = (MultilineTextFieldAccessor) this.textField;
         field.koreanify$cursor(result.cursor());

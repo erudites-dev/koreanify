@@ -18,6 +18,15 @@ public final class PreeditDispatcher {
         this.handler.clear();
     }
 
+    public void cancel() {
+        this.handler.clear();
+        PreeditComposer.resetIme();
+    }
+
+    public PreeditComposer.MergeResult merge(final String currentValue, final int cursorPos) {
+        return PreeditComposer.merge(currentValue, cursorPos, this.handler.composition());
+    }
+
     public void apply(
         final @Nullable PreeditEvent event,
         final String currentValue,
