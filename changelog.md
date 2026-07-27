@@ -1,9 +1,8 @@
 ### Requirements
 - Java 25
-- Minecraft 26.1.x
-- Fabric loader 0.19.2
-- NeoForge 26.1.0.x
+- Minecraft 26.1-26.2
+- Fabric loader 0.19.3
+- NeoForge 26.1-26.2
 
-### Changes (0.1.6)
-- Fixed preedit responder firing on focus resubmit when composition unchanged (#3)
-- Tightened method parameter contracts with final and nullable annotation across mixins and helpers
+### Changes (0.1.7)
+- Fixed ime composition surviving preedit reset and candidate window position not being reported
