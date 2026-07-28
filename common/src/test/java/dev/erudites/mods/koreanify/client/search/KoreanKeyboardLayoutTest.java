@@ -1,0 +1,41 @@
+package dev.erudites.mods.koreanify.client.search;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class KoreanKeyboardLayoutTest {
+
+    @Test
+    @DisplayName("latin keys are read as the jamo they would have typed")
+    void convertsLatinKeysToJamo() {
+        assertEquals("ㄱㅏㄴㅏ", KoreanKeyboardLayout.toJamo("rksk"));
+        assertEquals("ㄷㅏㅇㅣㅇㅏㅁㅗㄴㄷㅡ", KoreanKeyboardLayout.toJamo("ekdldkahsem"));
+    }
+
+    @Test
+    @DisplayName("shifted keys map to double jamo, other uppercase keeps its jamo")
+    void convertsShiftedKeys() {
+        assertEquals("ㄲㅏ", KoreanKeyboardLayout.toJamo("Rk"));
+        assertEquals("ㅃㅒ", KoreanKeyboardLayout.toJamo("QO"));
+        assertEquals("ㄱㅏ", KoreanKeyboardLayout.toJamo("rk"));
+        assertEquals("ㅁㅏ", KoreanKeyboardLayout.toJamo("Ak"));
+    }
+
+    @Test
+    @DisplayName("spaces are kept so multi word queries still line up")
+    void keepsSpaces() {
+        assertEquals("ㄱㅏ ㄴㅏ", KoreanKeyboardLayout.toJamo("rk sk"));
+    }
+
+    @Test
+    @DisplayName("queries that are not plain latin text are left to the normal matcher")
+    void rejectsNonLatinQueries() {
+        assertEquals("", KoreanKeyboardLayout.toJamo("다이아"));
+        assertEquals("", KoreanKeyboardLayout.toJamo("rk1"));
+        assertEquals("", KoreanKeyboardLayout.toJamo("  "));
+        assertEquals("", KoreanKeyboardLayout.toJamo(""));
+        assertEquals("", KoreanKeyboardLayout.toJamo(null));
+    }
+}

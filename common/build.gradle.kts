@@ -20,6 +20,13 @@ dependencies {
     compileOnly("net.fabricmc:fabric-loader:${BuildConfig.FABRIC_LOADER_VERSION}")
 
     compileOnly("net.caffeinemc:sodium-fabric-api:${BuildConfig.SODIUM_VERSION}")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 loom {
