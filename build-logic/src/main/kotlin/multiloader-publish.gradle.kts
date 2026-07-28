@@ -1,8 +1,17 @@
+import me.modmuss50.mpp.PublishModTask
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
+
 plugins {
     id("me.modmuss50.mod-publish-plugin")
 }
 
 val projectProviders = providers
+
+fun envFlag(name: String, default: Boolean): Boolean = projectProviders.environmentVariable(name)
+    .orElse(default.toString())
+    .get()
+    .toBoolean()
 
 gradle.projectsEvaluated {
     // https://github.com/modmuss50/mod-publish-plugin
@@ -22,12 +31,12 @@ gradle.projectsEvaluated {
             "beta" -> BETA
             else -> STABLE
         }
-        val includeSnapshot = projectProviders.environmentVariable("INCLUDE_SNAPSHOTS").orElse("false").get().toBoolean()
-        val publishEnabled = projectProviders.environmentVariable("PUBLISH_ENABLED").orElse("true").get().toBoolean()
-        val fabricEnabled = projectProviders.environmentVariable("FABRIC_ARTIFACT").orElse("true").get().toBoolean()
-        val neoforgeEnabled = projectProviders.environmentVariable("NEOFORGE_ARTIFACT").orElse("true").get().toBoolean()
-        val modrinthEnabled = projectProviders.environmentVariable("PUBLISH_MODRINTH").orElse("true").get().toBoolean()
-        val curseforgeEnabled = projectProviders.environmentVariable("PUBLISH_CURSEFORGE").orElse("true").get().toBoolean()
+        val includeSnapshot = envFlag("INCLUDE_SNAPSHOTS", false)
+        val publishEnabled = envFlag("PUBLISH_ENABLED", true)
+        val fabricEnabled = envFlag("FABRIC_ARTIFACT", true)
+        val neoforgeEnabled = envFlag("NEOFORGE_ARTIFACT", true)
+        val modrinthEnabled = envFlag("PUBLISH_MODRINTH", true)
+        val curseforgeEnabled = envFlag("PUBLISH_CURSEFORGE", true)
 
         if (!publishEnabled) {
             println("Publishing is disabled. Set PUBLISH_ENABLED=true to enable.")
@@ -59,52 +68,53 @@ gradle.projectsEvaluated {
         val fabricJar = project(":fabric").tasks.named<Jar>("jar").flatMap { it.archiveFile }
         val neoforgeJar = project(":neoforge").tasks.named<Jar>("jar").flatMap { it.archiveFile }
 
-        // Fabric
-        if (fabricEnabled) {
+        fun publishArtifact(
+            loaderId: String,
+            loaderName: String,
+            jar: Provider<RegularFile>,
+            vararg modLoaderIds: String,
+        ) {
+            val platformSuffix = loaderId.replaceFirstChar(Char::uppercaseChar)
+            val artifactVersion = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-${loaderId}"
+            val artifactDisplayName = "Koreanify ${BuildConfig.MOD_VERSION} for ${loaderName} ${BuildConfig.MINECRAFT_VERSION}"
+
             if (curseforgeEnabled) {
-                curseforge("curseforgeFabric") {
+                curseforge("curseforge${platformSuffix}") {
                     from(cfOptions)
-                    file = fabricJar
-                    modLoaders.add("fabric")
-                    modLoaders.add("quilt")
-                    version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-fabric"
-                    displayName = "Koreanify ${BuildConfig.MOD_VERSION} for Fabric ${BuildConfig.MINECRAFT_VERSION}"
+                    file = jar
+                    modLoaders.addAll(*modLoaderIds)
+                    version = artifactVersion
+                    displayName = artifactDisplayName
                 }
             }
 
             if (modrinthEnabled) {
-                modrinth("modrinthFabric") {
+                modrinth("modrinth${platformSuffix}") {
                     from(mrOptions)
-                    file = fabricJar
-                    modLoaders.add("fabric")
-                    modLoaders.add("quilt")
-                    version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-fabric"
-                    displayName = "Koreanify ${BuildConfig.MOD_VERSION} for Fabric ${BuildConfig.MINECRAFT_VERSION}"
+                    file = jar
+                    modLoaders.addAll(*modLoaderIds)
+                    version = artifactVersion
+                    displayName = artifactDisplayName
                 }
             }
         }
 
-        // NeoForge
-        if (neoforgeEnabled) {
-            if (curseforgeEnabled) {
-                curseforge("curseforgeNeoforge") {
-                    from(cfOptions)
-                    file = neoforgeJar
-                    modLoaders.add("neoforge")
-                    version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-neoforge"
-                    displayName = "Koreanify ${BuildConfig.MOD_VERSION} for NeoForge ${BuildConfig.MINECRAFT_VERSION}"
-                }
-            }
+        if (fabricEnabled) {
+            publishArtifact(
+                "fabric",
+                "Fabric",
+                fabricJar,
+                "fabric", "quilt"
+            )
+        }
 
-            if (modrinthEnabled) {
-                modrinth("modrinthNeoforge") {
-                    from(mrOptions)
-                    file = neoforgeJar
-                    modLoaders.add("neoforge")
-                    version = "mc${minecraftVersion}-${BuildConfig.MOD_VERSION}-neoforge"
-                    displayName = "Koreanify ${BuildConfig.MOD_VERSION} for NeoForge ${BuildConfig.MINECRAFT_VERSION}"
-                }
-            }
+        if (neoforgeEnabled) {
+            publishArtifact(
+                "neoforge",
+                "NeoForge",
+                neoforgeJar,
+                "neoforge"
+            )
         }
 
         // GitHub Release
@@ -125,7 +135,7 @@ gradle.projectsEvaluated {
         }
     }
 
-    val publishTasks = tasks.withType<me.modmuss50.mpp.PublishModTask>()
+    val publishTasks = tasks.withType<PublishModTask>()
     val fabricPublishTasks = publishTasks.matching { it.platform.name.contains("fabric", ignoreCase = true) }
     publishTasks.matching { it.platform.name.contains("neoforge", ignoreCase = true) }.configureEach {
         mustRunAfter(fabricPublishTasks)
