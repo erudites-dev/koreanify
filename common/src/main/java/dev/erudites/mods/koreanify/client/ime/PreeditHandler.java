@@ -37,7 +37,7 @@ public final class PreeditHandler {
         );
         if (available == 0) {
             this.composition = "";
-            return PreeditResult.UNCHANGED;
+            return PreeditResult.CANCEL;
         }
         if (fullPreedit.length() > available) {
             this.composition = "";
@@ -67,7 +67,7 @@ public final class PreeditHandler {
         );
         if (fittedPreedit.isEmpty()) {
             this.composition = "";
-            return PreeditResult.UNCHANGED;
+            return PreeditResult.CANCEL;
         }
         if (fittedPreedit.length() < fullPreedit.length()) {
             this.composition = "";

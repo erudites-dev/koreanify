@@ -45,7 +45,7 @@ abstract class AbstractSignEditScreenMixin {
             ((PreeditOverlayState) this.preeditOverlay).koreanify$markInlined();
         }
         if (this.signField == null) {
-            this.preeditDispatcher.clear();
+            this.preeditDispatcher.cancel();
             return;
         }
         this.preeditDispatcher.apply(

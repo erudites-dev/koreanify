@@ -66,6 +66,7 @@ public final class PreeditDispatcher {
     ) {
         switch (result) {
             case PreeditResult.Commit(String text) -> PreeditComposer.commitAndResetIme(text, inserter);
+            case PreeditResult.Cancel() -> PreeditComposer.resetIme();
             case PreeditResult.Notify(String value) when responder != null -> responder.accept(value);
             case PreeditResult.Notify(_), PreeditResult.Unchanged() -> {}
         }
