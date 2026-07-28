@@ -1,8 +1,11 @@
 {
   "koreanify.config.page.commands": "Commands",
+  "koreanify.config.page.search": "Search",
   "koreanify.config.page.input": "Input",
   "koreanify.config.option.command_search_korean_only": "Korean-Only Command Search",
   "koreanify.config.option.command_search_korean_only.tooltip": "When enabled, Korean/Jamo matching in tab-completion only applies if the input contains Korean characters. When disabled, substring matching is applied to all input (e.g. /mode → /gamemode).",
+  "koreanify.config.option.latin_as_hangul_search": "Read Latin Keys as Hangul",
+  "koreanify.config.option.latin_as_hangul_search.tooltip": "When enabled, a query typed with the IME left off is also read as the Hangul those keys would have produced (e.g. ekdl → 다이아).",
   "koreanify.config.option.prevent_windows_fullwidth_switching": "Prevent Windows Full-Width Switching",
   "koreanify.config.option.prevent_windows_fullwidth_switching.tooltip": "When enabled, Windows IME full-width mode is immediately reverted to half-width mode."
 }

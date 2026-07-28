@@ -28,6 +28,19 @@ public class KoreanifySodiumConfigBuilder implements ConfigEntryPoint {
             )
         );
         options.addPage(builder.createOptionPage()
+            .setName(Component.translatable("koreanify.config.page.search"))
+            .addOption(builder.createBooleanOption(KoreanifyClientMod.id("latin_as_hangul_search"))
+                .setName(Component.translatable("koreanify.config.option.latin_as_hangul_search"))
+                .setTooltip(Component.translatable("koreanify.config.option.latin_as_hangul_search.tooltip"))
+                .setDefaultValue(true)
+                .setBinding(
+                    value -> KoreanifyConfig.get().search.latinAsHangulSearch = value,
+                    () -> KoreanifyConfig.get().search.latinAsHangulSearch
+                )
+                .setStorageHandler(KoreanifyConfig::save)
+            )
+        );
+        options.addPage(builder.createOptionPage()
             .setName(Component.translatable("koreanify.config.page.input"))
             .addOption(builder.createBooleanOption(KoreanifyClientMod.id("prevent_windows_fullwidth_switching"))
                 .setName(Component.translatable("koreanify.config.option.prevent_windows_fullwidth_switching"))

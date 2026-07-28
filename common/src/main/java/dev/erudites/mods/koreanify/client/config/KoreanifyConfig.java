@@ -25,6 +25,7 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
 
     public CommandConfig command = new CommandConfig();
     public InputConfig input = new InputConfig();
+    public SearchConfig search = new SearchConfig();
 
     @Category("명령어 관련 설정 카테고리")
     public static class CommandConfig {
@@ -34,6 +35,16 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
             "false: 영문 입력에도 substring 매칭을 적용합니다. (/mode → /gamemode 등)"
         })
         public boolean commandSearchKoreanOnly = true;
+    }
+
+    @Category("검색 관련 설정 카테고리")
+    public static class SearchConfig {
+        @Comment({
+            "영문 자판 입력을 한글로 해석해 검색 (ekdl → 다이아)",
+            "true (기본값): IME를 켜지 않고 입력한 영문도 해당 자판의 한글로 해석해 함께 검색합니다.",
+            "false: 영문 입력은 영문 그대로만 검색합니다."
+        })
+        public boolean latinAsHangulSearch = true;
     }
 
     @Category("입력 관련 설정 카테고리")

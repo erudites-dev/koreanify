@@ -1,5 +1,6 @@
 package dev.erudites.mods.koreanify.client.search;
 
+import dev.erudites.mods.koreanify.client.config.KoreanifyConfig;
 import org.jspecify.annotations.Nullable;
 
 public final class KoreanSearchMatcher {
@@ -14,6 +15,17 @@ public final class KoreanSearchMatcher {
     private static final char[] JUNGSEONG_TABLE = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ".toCharArray();
     private static final char[] JONGSEONG_TABLE = "\0ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ".toCharArray();
 
+    // Compound jamo split into the keys that type them: ㅘ → ㅗㅏ, ㄵ → ㄴㅈ
+    private static final String[] JUNGSEONG_PARTS = {
+        "ㅏ", "ㅐ", "ㅑ", "ㅒ", "ㅓ", "ㅔ", "ㅕ", "ㅖ", "ㅗ", "ㅗㅏ", "ㅗㅐ", "ㅗㅣ", "ㅛ",
+        "ㅜ", "ㅜㅓ", "ㅜㅔ", "ㅜㅣ", "ㅠ", "ㅡ", "ㅡㅣ", "ㅣ"
+    };
+    private static final String[] JONGSEONG_PARTS = {
+        "", "ㄱ", "ㄲ", "ㄱㅅ", "ㄴ", "ㄴㅈ", "ㄴㅎ", "ㄷ", "ㄹ", "ㄹㄱ", "ㄹㅁ", "ㄹㅂ", "ㄹㅅ", "ㄹㅌ",
+        "ㄹㅍ", "ㄹㅎ", "ㅁ", "ㅂ", "ㅂㅅ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+    };
+    private static final int MAX_JAMO_PER_CHAR = 5;
+
     private static final boolean[] IS_CHOSEONG;
 
     static {
@@ -27,7 +39,14 @@ public final class KoreanSearchMatcher {
     private static volatile CachedQuery cachedQuery;
 
     @SuppressWarnings("java:S6218")
-    private record CachedQuery(String original, char[] normalized, int length, boolean allChoseong) {}
+    private record CachedQuery(
+        String original,
+        char[] normalized,
+        int length,
+        boolean allChoseong,
+        char[] layoutJamo,
+        int layoutLength
+    ) {}
 
     private KoreanSearchMatcher() {}
 
@@ -51,34 +70,99 @@ public final class KoreanSearchMatcher {
         if (target == null || target.isEmpty()) {
             return false;
         }
-        char[] queryBuf;
-        int queryLen;
-        boolean allChoseong;
         CachedQuery cached = cachedQuery;
-        if (cached != null && query.equals(cached.original)) {
-            queryBuf = cached.normalized;
-            queryLen = cached.length;
-            allChoseong = cached.allChoseong;
-        } else {
-            queryBuf = new char[query.length()];
-            queryLen = normalizeInto(query, queryBuf);
-            allChoseong = checkAllChoseong(queryBuf, queryLen);
-            cachedQuery = new CachedQuery(query, queryBuf, queryLen, allChoseong);
+        if (cached == null || !query.equals(cached.original)) {
+            cached = cacheQuery(query);
         }
+        char[] queryBuf = cached.normalized;
+        int queryLen = cached.length;
         if (queryLen == 0) {
             return true;
         }
         // Normalize into raw char[] — avoids String allocation from toLowerCase()/replace()
         char[] targetBuf = new char[target.length()];
         int targetLen = normalizeInto(target, targetBuf);
-        if (queryLen > targetLen) {
+        if (queryLen <= targetLen) {
+            // Pure choseong queries use a dedicated loop that skips the three-way
+            // branching in mismatchChar — just getChoseong() + equality.
+            boolean matched = cached.allChoseong
+                ? matchesChoseongOnly(targetBuf, targetLen, queryBuf, queryLen)
+                : matchesGeneral(targetBuf, targetLen, queryBuf, queryLen);
+            if (matched) {
+                return true;
+            }
+        }
+        return matchesKeyboardLayout(targetBuf, targetLen, cached);
+    }
+
+    private static CachedQuery cacheQuery(final String query) {
+        char[] normalized = new char[query.length()];
+        int length = normalizeInto(query, normalized);
+        String layout = KoreanifyConfig.get().search.latinAsHangulSearch
+            ? KoreanKeyboardLayout.toJamo(query)
+            : "";
+        char[] layoutJamo = new char[layout.length()];
+        int layoutLength = normalizeInto(layout, layoutJamo);
+        CachedQuery cached = new CachedQuery(
+            query,
+            normalized,
+            length,
+            checkAllChoseong(normalized, length),
+            layoutJamo,
+            layoutLength
+        );
+        cachedQuery = cached;
+        return cached;
+    }
+
+    // Compares both sides as jamo, so the query typed with the ime off still matches: rksk → 가나
+    private static boolean matchesKeyboardLayout(final char[] targetBuf, final int targetLen, final CachedQuery cached) {
+        int layoutLen = cached.layoutLength;
+        if (layoutLen == 0) {
             return false;
         }
-        // Pure choseong queries use a dedicated loop that skips the three-way
-        // branching in mismatchChar — just getChoseong() + equality.
-        return allChoseong
-            ? matchesChoseongOnly(targetBuf, targetLen, queryBuf, queryLen)
-            : matchesGeneral(targetBuf, targetLen, queryBuf, queryLen);
+        char[] jamoBuf = new char[targetLen * MAX_JAMO_PER_CHAR];
+        int jamoLen = expandJamoInto(targetBuf, targetLen, jamoBuf);
+        if (layoutLen > jamoLen) {
+            return false;
+        }
+        char[] layoutJamo = cached.layoutJamo;
+        int limit = jamoLen - layoutLen;
+        for (int i = 0; i <= limit; i++) {
+            boolean found = true;
+            for (int j = 0; j < layoutLen; j++) {
+                if (jamoBuf[i + j] != layoutJamo[j]) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Decomposes down to the keys that type each syllable: 과 → ㄱㅗㅏ, 앉 → ㅇㅏㄴㅈ
+    private static int expandJamoInto(final char[] source, final int length, final char[] target) {
+        int written = 0;
+        for (int i = 0; i < length; i++) {
+            char ch = source[i];
+            if (ch < HANGUL_BASE || ch > HANGUL_END) {
+                target[written++] = ch;
+                continue;
+            }
+            int offset = ch - HANGUL_BASE;
+            target[written++] = CHOSEONG_TABLE[offset / SYLLABLE_BLOCK];
+            written = appendParts(target, written, JUNGSEONG_PARTS[(offset % SYLLABLE_BLOCK) / JONGSEONG_COUNT]);
+            written = appendParts(target, written, JONGSEONG_PARTS[offset % JONGSEONG_COUNT]);
+        }
+        return written;
+    }
+
+    private static int appendParts(final char[] target, final int written, final String parts) {
+        parts.getChars(0, parts.length(), target, written);
+        return written + parts.length();
     }
 
     // Decomposes 한글 → ㅎㅏㄴㄱㅡㄹ
