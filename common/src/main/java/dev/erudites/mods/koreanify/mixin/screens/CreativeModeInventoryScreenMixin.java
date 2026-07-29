@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
 import dev.erudites.mods.koreanify.client.ime.PreeditState;
-import dev.erudites.mods.koreanify.client.search.KoreanSearchMatcher;
+import dev.erudites.mods.koreanify.client.search.ItemNameIndex;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.input.PreeditEvent;
@@ -14,8 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -30,6 +32,14 @@ abstract class CreativeModeInventoryScreenMixin {
     private boolean ignoreTextInput;
     @Shadow
     protected abstract void refreshSearchResults();
+
+    @Unique
+    private final ItemNameIndex itemNameIndex = new ItemNameIndex();
+
+    @Inject(method = "init", at = @At("TAIL"))
+    private void koreanify$invalidateItemNameIndex(CallbackInfo ci) {
+        this.itemNameIndex.invalidate();
+    }
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
     private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
@@ -71,9 +81,10 @@ abstract class CreativeModeInventoryScreenMixin {
             return original.call(instance, composedTarget);
         }
         List<ItemStack> vanillaResults = original.call(instance, composedTarget);
-        List<ItemStack> koreanMatchedResults = CreativeModeTabs.searchTab().getDisplayItems().stream()
-            .filter(item -> KoreanSearchMatcher.matches(item.getHoverName().getString(), composedTarget))
-            .toList();
+        List<ItemStack> koreanMatchedResults = this.itemNameIndex.matching(
+            CreativeModeTabs.searchTab().getDisplayItems(),
+            composedTarget
+        );
         return Stream.concat(vanillaResults.stream(), koreanMatchedResults.stream())
             .distinct()
             .toList();
