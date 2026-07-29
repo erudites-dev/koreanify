@@ -7,6 +7,8 @@ public final class KoreanSearchMatcher {
 
     private static final int HANGUL_BASE = 0xAC00;
     private static final int HANGUL_END = 0xD7A3;
+    private static final int JAMO_BASE = 0x3131;
+    private static final int JAMO_END = 0x318E;
     private static final int JUNGSEONG_COUNT = 21;
     private static final int JONGSEONG_COUNT = 28;
     private static final int SYLLABLE_BLOCK = JUNGSEONG_COUNT * JONGSEONG_COUNT; // 588
@@ -45,10 +47,36 @@ public final class KoreanSearchMatcher {
         int length,
         boolean allChoseong,
         char[] layoutJamo,
-        int layoutLength
+        int layoutLength,
+        boolean latinAsHangul
     ) {}
 
     private KoreanSearchMatcher() {}
+
+    public static boolean containsHangul(final @Nullable String text) {
+        if (text == null) {
+            return false;
+        }
+        for (int i = 0, n = text.length(); i < n; i++) {
+            if (isHangul(text.charAt(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean containsHangul(final char[] buf, final int len) {
+        for (int i = 0; i < len; i++) {
+            if (isHangul(buf[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isHangul(final char ch) {
+        return (ch >= JAMO_BASE && ch <= JAMO_END) || (ch >= HANGUL_BASE && ch <= HANGUL_END);
+    }
 
     public static boolean isChoseong(final char ch) {
         int index = ch - 'ㄱ';
@@ -70,9 +98,10 @@ public final class KoreanSearchMatcher {
         if (target == null || target.isEmpty()) {
             return false;
         }
+        boolean latinAsHangul = KoreanifyConfig.get().search.latinAsHangulSearch;
         CachedQuery cached = cachedQuery;
-        if (cached == null || !query.equals(cached.original)) {
-            cached = cacheQuery(query);
+        if (cached == null || !query.equals(cached.original) || cached.latinAsHangul != latinAsHangul) {
+            cached = cacheQuery(query, latinAsHangul);
         }
         char[] queryBuf = cached.normalized;
         int queryLen = cached.length;
@@ -95,12 +124,10 @@ public final class KoreanSearchMatcher {
         return matchesKeyboardLayout(targetBuf, targetLen, cached);
     }
 
-    private static CachedQuery cacheQuery(final String query) {
+    private static CachedQuery cacheQuery(final String query, final boolean latinAsHangul) {
         char[] normalized = new char[query.length()];
         int length = normalizeInto(query, normalized);
-        String layout = KoreanifyConfig.get().search.latinAsHangulSearch
-            ? KoreanKeyboardLayout.toJamo(query)
-            : "";
+        String layout = latinAsHangul ? KoreanKeyboardLayout.toJamo(query) : "";
         char[] layoutJamo = new char[layout.length()];
         int layoutLength = normalizeInto(layout, layoutJamo);
         CachedQuery cached = new CachedQuery(
@@ -109,7 +136,8 @@ public final class KoreanSearchMatcher {
             length,
             checkAllChoseong(normalized, length),
             layoutJamo,
-            layoutLength
+            layoutLength,
+            latinAsHangul
         );
         cachedQuery = cached;
         return cached;
@@ -118,7 +146,7 @@ public final class KoreanSearchMatcher {
     // Compares both sides as jamo, so the query typed with the ime off still matches: rksk → 가나
     private static boolean matchesKeyboardLayout(final char[] targetBuf, final int targetLen, final CachedQuery cached) {
         int layoutLen = cached.layoutLength;
-        if (layoutLen == 0) {
+        if (layoutLen == 0 || !containsHangul(targetBuf, targetLen)) {
             return false;
         }
         char[] jamoBuf = new char[targetLen * MAX_JAMO_PER_CHAR];

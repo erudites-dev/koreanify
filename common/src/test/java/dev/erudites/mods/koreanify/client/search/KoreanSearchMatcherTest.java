@@ -32,6 +32,18 @@ class KoreanSearchMatcherTest {
         assertTrue(KoreanSearchMatcher.matches("과일", "rhk"));
         assertTrue(KoreanSearchMatcher.matches("앉다", "dkswek"));
         assertFalse(KoreanSearchMatcher.matches("다이아몬드", "rksk"));
+        assertFalse(KoreanSearchMatcher.matches("Diamond Sword", "ekdl"));
+    }
+
+    @Test
+    @DisplayName("hangul detection covers jamo and syllables, not other scripts")
+    void detectsHangul() {
+        assertTrue(KoreanSearchMatcher.containsHangul("다이아"));
+        assertTrue(KoreanSearchMatcher.containsHangul("tnt ㅍ"));
+        assertFalse(KoreanSearchMatcher.containsHangul("diamond"));
+        assertFalse(KoreanSearchMatcher.containsHangul("ダイヤ"));
+        assertFalse(KoreanSearchMatcher.containsHangul("鑽石"));
+        assertFalse(KoreanSearchMatcher.containsHangul(null));
     }
 
     @Test
