@@ -33,26 +33,32 @@ class PreeditComposerTest {
     }
 
     @Test
-    @DisplayName("available room counts the selection that is about to be replaced")
-    void countsAvailableSpace() {
-        assertEquals(2, PreeditComposer.availableSpace(8, 4, 4, 10));
-        assertEquals(0, PreeditComposer.availableSpace(10, 4, 4, 10));
-        assertEquals(3, PreeditComposer.availableSpace(10, 2, 5, 10));
-        assertEquals(0, PreeditComposer.availableSpace(12, 0, 0, 10));
+    @DisplayName("the composition is cut at the character limit")
+    void fitsCompositionToLength() {
+        assertEquals("한글", PreeditComposer.fitToLength("가나", 2, 2, 10).apply("한글"));
+        assertEquals("한", PreeditComposer.fitToLength("가나다", 3, 3, 4).apply("한글"));
+        assertEquals("", PreeditComposer.fitToLength("가나다", 3, 3, 3).apply("한글"));
+        assertEquals("", PreeditComposer.fitToLength("가나다", 0, 0, 2).apply("한글"));
+    }
+
+    @Test
+    @DisplayName("the selection about to be replaced counts as free room")
+    void fitsCompositionOverSelectedLength() {
+        assertEquals("한글", PreeditComposer.fitToLength("가나다", 0, 3, 3).apply("한글"));
     }
 
     @Test
     @DisplayName("the composition is cut where the field stops accepting it")
     void fitsCompositionToValidator() {
-        assertEquals("한", PreeditComposer.fitComposition("한글", "가나다", 3, 3, text -> text.length() <= 4));
-        assertEquals("", PreeditComposer.fitComposition("한글", "가나다", 3, 3, text -> text.length() <= 3));
-        assertEquals("한글", PreeditComposer.fitComposition("한글", "가나다", 3, 3, text -> text.length() <= 5));
+        assertEquals("한", PreeditComposer.fitToValidator("가나다", 3, 3, text -> text.length() <= 4).apply("한글"));
+        assertEquals("", PreeditComposer.fitToValidator("가나다", 3, 3, text -> text.length() <= 3).apply("한글"));
+        assertEquals("한글", PreeditComposer.fitToValidator("가나다", 3, 3, text -> text.length() <= 5).apply("한글"));
     }
 
     @Test
     @DisplayName("a selection is replaced by the composition when fitting it")
     void fitsCompositionOverSelection() {
-        assertEquals("한글", PreeditComposer.fitComposition("한글", "가나다", 1, 3, text -> text.length() <= 3));
+        assertEquals("한글", PreeditComposer.fitToValidator("가나다", 1, 3, text -> text.length() <= 3).apply("한글"));
     }
 
     @Test

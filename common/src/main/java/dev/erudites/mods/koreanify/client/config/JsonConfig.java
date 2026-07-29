@@ -11,7 +11,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -161,7 +165,13 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return i;
         }
 
-        private int tryMatchCatField(final String line, final int i, final Field[] catFields, final Object catObj, final Set<String> handledCatKeys) {
+        private int tryMatchCatField(
+            final String line,
+            final int i,
+            final Field[] catFields,
+            final Object catObj,
+            final Set<String> handledCatKeys
+        ) {
             for (Field catField : catFields) {
                 String key = toSnakeCase(catField);
                 if (!handledCatKeys.contains(key) && !isConfigCategory(catField.getType()) && matchesFieldLine(line, key)) {
@@ -175,13 +185,15 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
             return i;
         }
 
-        private void insertMissingFields(final Field[] fields, final Object obj, final String indent, final Set<String> handled) {
-            List<Field> missing = new ArrayList<>();
-            for (Field f : fields) {
-                if (!handled.contains(toSnakeCase(f))) {
-                    missing.add(f);
-                }
-            }
+        private void insertMissingFields(
+            final Field[] fields,
+            final Object obj,
+            final String indent,
+            final Set<String> handled
+        ) {
+            List<Field> missing = Arrays.stream(fields)
+                .filter(field -> !handled.contains(toSnakeCase(field)))
+                .toList();
             if (missing.isEmpty()) {
                 return;
             }
@@ -253,20 +265,31 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         if (comment == null) {
             return;
         }
-        for (String line : comment.value()) {
-            builder.append(indent).append("// ").append(line).append("\n");
-        }
+        appendCommentLines(builder, comment.value(), indent);
         appendValueHint(builder, field.getType(), indent);
+    }
+
+    private static void appendCommentLines(final StringBuilder builder, final String[] lines, final String indent) {
+        for (String line : lines) {
+            builder.append(indent)
+                .append("// ")
+                .append(line)
+                .append("\n");
+        }
     }
 
     private static void appendValueHint(final StringBuilder builder, final Class<?> type, final String indent) {
         if (type == boolean.class || type == Boolean.class) {
-            builder.append(indent).append("// values: true / false\n");
+            builder.append(indent)
+                .append("// values: true / false\n");
         } else if (type.isEnum()) {
             String values = Arrays.stream(type.getEnumConstants())
                 .map(Object::toString)
                 .collect(Collectors.joining(", ", "[", "]"));
-            builder.append(indent).append("// values: ").append(values).append("\n");
+            builder.append(indent)
+                .append("// values: ")
+                .append(values)
+                .append("\n");
         }
     }
 
@@ -276,36 +299,52 @@ public abstract class JsonConfig<T extends JsonConfig<T>> {
         try {
             Object value = field.get(obj);
             if (isConfigCategory(field.getType())) {
-                Category category = field.getType().getAnnotation(Category.class);
-                if (category != null) {
-                    for (String line : category.value()) {
-                        builder.append(indent)
-                            .append("// ")
-                            .append(line)
-                            .append("\n");
-                    }
-                }
-                builder.append(indent)
-                    .append("\"")
-                    .append(key)
-                    .append("\": {\n");
-                appendFields(builder, value, indent + "  ");
-                builder.append(indent)
-                    .append("}")
-                    .append(comma)
-                    .append("\n");
+                appendCategoryEntry(builder, field.getType(), value, key, indent, comma);
             } else {
-                builder.append(indent)
-                    .append("\"")
-                    .append(key)
-                    .append("\": ")
-                    .append(formatValue(value))
-                    .append(comma)
-                    .append("\n");
+                appendValueEntry(builder, formatValue(value), key, indent, comma);
             }
         } catch (IllegalAccessException e) {
             KoreanifyClientMod.LOGGER.warn("Failed to serialize config field '{}'", field.getName(), e);
         }
+    }
+
+    private static void appendCategoryEntry(
+        final StringBuilder builder,
+        final Class<?> type,
+        final Object value,
+        final String key,
+        final String indent,
+        final String comma
+    ) {
+        Category category = type.getAnnotation(Category.class);
+        if (category != null) {
+            appendCommentLines(builder, category.value(), indent);
+        }
+        builder.append(indent)
+            .append("\"")
+            .append(key)
+            .append("\": {\n");
+        appendFields(builder, value, indent + "  ");
+        builder.append(indent)
+            .append("}")
+            .append(comma)
+            .append("\n");
+    }
+
+    private static void appendValueEntry(
+        final StringBuilder builder,
+        final String value,
+        final String key,
+        final String indent,
+        final String comma
+    ) {
+        builder.append(indent)
+            .append("\"")
+            .append(key)
+            .append("\": ")
+            .append(value)
+            .append(comma)
+            .append("\n");
     }
 
     private static String formatValue(final Object value) {

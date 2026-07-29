@@ -3,7 +3,7 @@ package dev.erudites.mods.koreanify.client.ime;
 import net.minecraft.client.input.PreeditEvent;
 import org.jspecify.annotations.Nullable;
 
-import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public final class PreeditHandler {
 
@@ -21,50 +21,14 @@ public final class PreeditHandler {
         final @Nullable PreeditEvent event,
         final String currentValue,
         final int cursorPos,
-        final int highlightPos,
-        final int maxLength
+        final UnaryOperator<String> fit
     ) {
         String prevComposition = this.composition;
         String fullPreedit = (event != null) ? event.fullText() : "";
         if (fullPreedit.isEmpty()) {
             return this.endComposition(prevComposition, currentValue);
         }
-        int available = PreeditComposer.availableSpace(
-            currentValue.length(),
-            cursorPos,
-            highlightPos,
-            maxLength
-        );
-        if (available == 0) {
-            this.composition = "";
-            return PreeditResult.CANCEL;
-        }
-        if (fullPreedit.length() > available) {
-            this.composition = "";
-            return new PreeditResult.Commit(fullPreedit.substring(0, available));
-        }
-        return this.updateComposition(prevComposition, fullPreedit, currentValue, cursorPos);
-    }
-
-    public PreeditResult handlePreedit(
-        final @Nullable PreeditEvent event,
-        final String currentValue,
-        final int cursorPos,
-        final int selectCursor,
-        final Predicate<String> validator
-    ) {
-        String prevComposition = this.composition;
-        String fullPreedit = (event != null) ? event.fullText() : "";
-        if (fullPreedit.isEmpty()) {
-            return this.endComposition(prevComposition, currentValue);
-        }
-        String fittedPreedit = PreeditComposer.fitComposition(
-            fullPreedit,
-            currentValue,
-            cursorPos,
-            selectCursor,
-            validator
-        );
+        String fittedPreedit = fit.apply(fullPreedit);
         if (fittedPreedit.isEmpty()) {
             this.composition = "";
             return PreeditResult.CANCEL;

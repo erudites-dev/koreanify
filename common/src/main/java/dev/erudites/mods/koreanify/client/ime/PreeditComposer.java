@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public final class PreeditComposer {
 
@@ -33,12 +34,44 @@ public final class PreeditComposer {
         return merge(value, cursor, composition).text().toLowerCase(Locale.ROOT);
     }
 
-    public static int availableSpace(final int currentLength, final int selectionStartPos, final int selectionEndPos, final int maxLength) {
+    public static UnaryOperator<String> fitToLength(
+        final String baseValue,
+        final int selectionStartPos,
+        final int selectionEndPos,
+        final int maxLength
+    ) {
+        int available = availableSpace(baseValue.length(), selectionStartPos, selectionEndPos, maxLength);
+        return preedit -> preedit.length() <= available
+            ? preedit
+            : preedit.substring(0, available);
+    }
+
+    public static UnaryOperator<String> fitToValidator(
+        final String baseValue,
+        final int selectionStartPos,
+        final int selectionEndPos,
+        final Predicate<String> validator
+    ) {
+        return preedit -> fitComposition(preedit, baseValue, selectionStartPos, selectionEndPos, validator);
+    }
+
+    private static int availableSpace(
+        final int currentLength,
+        final int selectionStartPos,
+        final int selectionEndPos,
+        final int maxLength
+    ) {
         int selectionLength = Mth.abs(selectionStartPos - selectionEndPos);
         return Math.max(0, maxLength - (currentLength - selectionLength));
     }
 
-    public static String fitComposition(final String fullPreedit, final String baseValue, final int selectionStartPos, final int selectionEndPos, final Predicate<String> validator) {
+    private static String fitComposition(
+        final String fullPreedit,
+        final String baseValue,
+        final int selectionStartPos,
+        final int selectionEndPos,
+        final Predicate<String> validator
+    ) {
         StringBuilder builder = new StringBuilder();
         int minSelectionPos = Math.min(selectionStartPos, selectionEndPos);
         int maxSelectionPos = Math.max(selectionStartPos, selectionEndPos);

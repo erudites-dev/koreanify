@@ -1,10 +1,10 @@
 package dev.erudites.mods.koreanify.client.search;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,13 +27,13 @@ public final class ItemNameIndex {
 
     public List<ItemStack> matching(final Collection<ItemStack> displayItems, final String query) {
         this.refreshIfStale(displayItems);
-        List<ItemStack> matched = new ArrayList<>();
+        ImmutableList.Builder<ItemStack> matched = ImmutableList.builder();
         for (int i = 0; i < this.items.length; i++) {
             if (KoreanSearchMatcher.matches(this.names[i], query)) {
                 matched.add(this.items[i]);
             }
         }
-        return matched;
+        return matched.build();
     }
 
     private void refreshIfStale(final Collection<ItemStack> displayItems) {

@@ -38,48 +38,28 @@ public final class WindowsImeShapeEnforcer {
         }
     }
 
-    private static void forceHalfwidth(final Window window) {
+    private static void forceHalfwidth(final Window window) throws Throwable {
         long hwnd = GLFWNativeWin32.glfwGetWin32Window(window.handle());
         if (hwnd == 0L) {
             return;
         }
         MemorySegment windowHandle = MemorySegment.ofAddress(hwnd);
-        MemorySegment inputContext = invokeAddress(Imm32.GET_CONTEXT, windowHandle);
+        MemorySegment inputContext = (MemorySegment) Imm32.GET_CONTEXT.invokeExact(windowHandle);
         if (inputContext.address() == 0L) {
             return;
         }
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment conversion = arena.allocate(JAVA_INT);
             MemorySegment sentence = arena.allocate(JAVA_INT);
-            if (invokeInt(Imm32.GET_CONVERSION_STATUS, inputContext, conversion, sentence) != 0) {
-                int conversionValue = conversion.get(JAVA_INT, 0);
-                if ((conversionValue & IME_CMODE_FULLSHAPE) != 0) {
-                    invokeInt(
-                        Imm32.SET_CONVERSION_STATUS,
-                        inputContext,
-                        conversionValue & ~IME_CMODE_FULLSHAPE,
-                        sentence.get(JAVA_INT, 0)
-                    );
-                }
+            int read = (int) Imm32.GET_CONVERSION_STATUS.invokeExact(inputContext, conversion, sentence);
+            int conversionValue = conversion.get(JAVA_INT, 0);
+            if (read != 0 && (conversionValue & IME_CMODE_FULLSHAPE) != 0) {
+                int halfwidth = conversionValue & ~IME_CMODE_FULLSHAPE;
+                int sentenceValue = sentence.get(JAVA_INT, 0);
+                int _ = (int) Imm32.SET_CONVERSION_STATUS.invokeExact(inputContext, halfwidth, sentenceValue);
             }
         } finally {
-            invokeInt(Imm32.RELEASE_CONTEXT, windowHandle, inputContext);
-        }
-    }
-
-    private static MemorySegment invokeAddress(final MethodHandle handle, final Object... args) {
-        try {
-            return (MemorySegment) handle.invokeWithArguments(args);
-        } catch (Throwable e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static int invokeInt(final MethodHandle handle, final Object... args) {
-        try {
-            return (int) handle.invokeWithArguments(args);
-        } catch (Throwable e) {
-            throw new IllegalStateException(e);
+            int _ = (int) Imm32.RELEASE_CONTEXT.invokeExact(windowHandle, inputContext);
         }
     }
 

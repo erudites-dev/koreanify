@@ -5,6 +5,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public final class PreeditDispatcher {
 
@@ -12,10 +13,6 @@ public final class PreeditDispatcher {
 
     public String composition() {
         return this.handler.composition();
-    }
-
-    public void clear() {
-        this.handler.clear();
     }
 
     public void cancel() {
@@ -36,8 +33,11 @@ public final class PreeditDispatcher {
         final Consumer<String> inserter,
         final @Nullable Consumer<String> responder
     ) {
-        run(
-            this.handler.handlePreedit(event, currentValue, cursorPos, highlightPos, maxLength),
+        this.apply(
+            event,
+            currentValue,
+            cursorPos,
+            PreeditComposer.fitToLength(currentValue, cursorPos, highlightPos, maxLength),
             inserter,
             responder
         );
@@ -52,14 +52,28 @@ public final class PreeditDispatcher {
         final Consumer<String> inserter,
         final @Nullable Consumer<String> responder
     ) {
-        run(
-            this.handler.handlePreedit(event, currentValue, cursorPos, selectCursor, validator),
+        this.apply(
+            event,
+            currentValue,
+            cursorPos,
+            PreeditComposer.fitToValidator(currentValue, cursorPos, selectCursor, validator),
             inserter,
             responder
         );
     }
 
-    private static void run(
+    private void apply(
+        final @Nullable PreeditEvent event,
+        final String currentValue,
+        final int cursorPos,
+        final UnaryOperator<String> fit,
+        final Consumer<String> inserter,
+        final @Nullable Consumer<String> responder
+    ) {
+        dispatch(this.handler.handlePreedit(event, currentValue, cursorPos, fit), inserter, responder);
+    }
+
+    private static void dispatch(
         final PreeditResult result,
         final Consumer<String> inserter,
         final @Nullable Consumer<String> responder
