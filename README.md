@@ -26,7 +26,13 @@ Choseong(Initial consonant) search has been applied to the search box.
 
 검색 박스에 초성 검색을 적용하였습니다.
 
-![chosung-serch](https://cdn.modrinth.com/data/p1nSK3e3/images/aa2b1aa1ba70a80376f45d81f1613ea3b34bdc67.png)
+![chosung-search](https://cdn.modrinth.com/data/p1nSK3e3/images/aa2b1aa1ba70a80376f45d81f1613ea3b34bdc67.png)
+
+Latin-to-Korean keyboard mapping search has been applied to the search box.
+
+검색 박스에 라틴 문자를 한국어 자판으로 매핑하는 검색을 적용하였습니다. (ckaskan → 참나무)
+
+![latin-search](https://cdn.modrinth.com/data/p1nSK3e3/images/75c4467fbedd4340fd509eea85e9f95bae430862.png)
 
 ---
 
