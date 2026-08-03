@@ -1,0 +1,51 @@
+name: "Feature Request / 기능 요청"
+description: "Suggest a new feature or an improvement / 새로운 기능이나 개선을 제안합니다"
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |-
+        ## Before you post / 제안하기 전에
+
+        Koreanify is focused on Korean text input and Korean search. Features outside that scope
+        (general UI tweaks, unrelated QoL changes, and so on) are better suited to a standalone mod.\
+        Koreanify는 한글 입력과 한글 검색에 집중하는 모드입니다. 이 범위를 벗어나는 기능
+        (일반적인 UI 변경, 관련 없는 편의 기능 등)은 별도의 모드로 만드는 편이 적합합니다.
+
+        Please search existing issues first. If a similar request was closed before, please do not open it again.\
+        먼저 기존 이슈를 검색해 주세요. 비슷한 요청이 이미 닫혔다면 다시 열지 말아주세요.
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Checklist / 확인 사항"
+      options:
+        - label: "I searched existing issues and did not find a duplicate. / 기존 이슈를 검색했고 중복이 없음을 확인했습니다."
+          required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Request Description / 요청 설명"
+      description: |-
+        Describe the problem you are trying to solve, what you would like changed, and any alternatives you already tried.\
+        해결하고 싶은 문제, 어떻게 바뀌었으면 하는지, 그리고 이미 시도해 본 대안이 있다면 함께 적어주세요.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Related Area / 관련 영역"
+      multiple: true
+      options:
+        - "Text input and composition / 입력 및 조합"
+        - "Korean search - choseong, latin-to-hangul / 한글 검색 - 초성, 영타 변환"
+        - "Config / 설정"
+        - "Compatibility with other mods / 다른 모드와의 호환"
+        - "Other / 기타"
+  - type: textarea
+    id: media
+    attributes:
+      label: "References / 참고 자료"
+      description: |-
+        Screenshots, mockups, or links to mods that already do something similar.\
+        스크린샷, 예시 이미지, 또는 비슷한 기능을 이미 제공하는 모드의 링크를 첨부해 주세요.

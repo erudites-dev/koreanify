@@ -1,0 +1,175 @@
+name: "Bug Report / 버그 제보"
+description: "Report a defect in Koreanify / Koreanify의 결함을 제보합니다"
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |-
+        ## Before you post / 제보하기 전에
+
+        Koreanify only changes Korean text input and search. If the problem also happens **without Koreanify installed**,
+        it is a vanilla or another mod's issue, not ours.\
+        Koreanify는 한글 입력과 검색만 수정합니다. **Koreanify를 제거해도 같은 문제가 발생한다면** 바닐라 또는 다른 모드의 문제이므로
+        해당 프로젝트에 제보해 주세요.
+
+        Input problems are very hard to reproduce from text alone. **A short screen recording is by far the most useful
+        thing you can attach.**\
+        입력 문제는 글만으로는 재현이 매우 어렵습니다. **짧은 화면 녹화 영상이 가장 큰 도움이 됩니다.**
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Checklist / 확인 사항"
+      options:
+        - label: "I am using the latest version of Koreanify. / 최신 버전의 Koreanify를 사용하고 있습니다."
+          required: true
+        - label: "I searched existing issues and did not find a duplicate. / 기존 이슈를 검색했고 중복이 없음을 확인했습니다."
+          required: true
+        - label: "I checked whether the problem still happens with only Koreanify installed. / Koreanify만 설치한 상태에서도 발생하는지 확인했습니다."
+          required: true
+  - type: input
+    id: minecraft-version
+    attributes:
+      label: "Minecraft Version / 마인크래프트 버전"
+      placeholder: "26.1.2, 26.2, ..."
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: "Mod Loader / 모드 로더"
+      options:
+        - Fabric
+        - NeoForge
+        - "Other / 기타"
+    validations:
+      required: true
+  - type: input
+    id: koreanify-version
+    attributes:
+      label: "Koreanify Version / Koreanify 버전"
+      description: |-
+        The version you are using.\
+        사용 중인 버전을 적어주세요.
+      placeholder: "0.1.0+mc26.1.2"
+    validations:
+      required: true
+  - type: dropdown
+    id: launcher
+    attributes:
+      label: "Launcher / 런처"
+      options:
+        - "Minecraft Launcher (official) / 마인크래프트 공식 런처"
+        - "Modrinth App"
+        - "CurseForge App"
+        - "MultiMC"
+        - "Prism Launcher"
+        - "Other / 기타"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System / 운영체제"
+      options:
+        - Windows 11
+        - Windows 10
+        - macOS
+        - Linux
+        - "Other / 기타"
+    validations:
+      required: true
+  - type: dropdown
+    id: ime
+    attributes:
+      label: "IME / 입력기"
+      description: |-
+        Which input method do you type Korean with?\
+        한글을 입력할 때 사용하는 입력기를 선택해 주세요.
+      options:
+        - "Microsoft IME (Windows default) / Microsoft IME (Windows 기본)"
+        - "Microsoft IME - previous version / Microsoft IME - 이전 버전 사용 중"
+        - "Another third-party IME / 외부 입력기"
+        - "macOS Korean input / macOS 한글 입력기"
+        - "Linux (ibus / fcitx / etc.)"
+        - "Other or not sure / 기타 또는 모름"
+    validations:
+      required: true
+  - type: input
+    id: environment-details
+    attributes:
+      label: "Environment Details / 환경 상세"
+      description: |-
+        Exact versions or anything specific about the fields above.\
+        위 항목들의 정확한 버전이나 구체적인 정보를 적어주세요.
+      placeholder: "Windows 11 25H2, Modrinth App 0.17.0, Java 25, 세벌식 자판"
+  - type: dropdown
+    id: location
+    attributes:
+      label: "Where does it happen? / 어디에서 발생하나요?"
+      multiple: true
+      options:
+        - "Chat / 채팅"
+        - "Command input / 명령어 입력"
+        - "Creative inventory search / 크리에이티브 아이템 검색"
+        - "Recipe book search / 제작법 책 검색"
+        - "Sign or book editing / 표지판 또는 책 편집"
+        - "Anvil, world list, server list, and other text boxes / 모루, 월드 목록, 서버 목록 등 기타 입력창"
+        - "Config screen / 설정 화면"
+        - "Everywhere / 전체"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Bug Description / 버그 설명"
+      description: |-
+        What happened, and what did you expect to happen instead?\
+        어떤 일이 일어났고, 원래는 어떻게 동작해야 한다고 생각하셨나요?
+      placeholder: |-
+        What happened / 실제 동작:
+
+        What you expected / 예상한 동작:
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: "Reproduction Steps / 재현 방법"
+      description: |-
+        Write a step-by-step guide someone else can follow to see the same result. Include the exact keys you press.\
+        다른 사람이 그대로 따라 해서 같은 결과를 볼 수 있도록 단계별로 적어주세요. 실제로 누른 키를 그대로 적어주시면 좋습니다.
+      placeholder: |-
+        1. Open the creative inventory and click the search box / 크리에이티브 인벤토리를 열고 검색창을 클릭
+        2. Switch to Korean with the Han/Eng key / 한/영 키로 한글 입력 상태로 전환
+        3. Type "안녕" (ㅇㅏㄴㄴㅕㅇ, keys: dkssud) / "안녕" 입력 (ㅇㅏㄴㄴㅕㅇ, 키: dkssud)
+        4. ...
+    validations:
+      required: true
+  - type: textarea
+    id: media
+    attributes:
+      label: "Screenshots or Video / 스크린샷 또는 영상"
+      description: |-
+        **Strongly recommended.** A recording of the typing usually explains the problem better than any description.\
+        **강력히 권장합니다.** 입력하는 장면을 녹화한 영상이 어떤 설명보다도 문제를 잘 보여줍니다.
+      placeholder: >-
+        Drag-and-drop files here. / 파일을 여기에 끌어다 놓으세요.
+  - type: textarea
+    id: other-mods
+    attributes:
+      label: "Other Mods / 함께 설치한 모드"
+      description: |-
+        If the bug only happens with other mods installed, list the ones that are involved with their versions.
+        Input-related mods such as IMBlocker matter the most.\
+        다른 모드를 함께 설치했을 때만 발생한다면, 관련된 모드와 버전을 적어주세요.
+        IMBlocker처럼 입력에 관여하는 모드가 특히 중요합니다.
+  - type: textarea
+    id: log-file
+    attributes:
+      label: "Log File / 로그 파일"
+      description: |-
+        Optional, but helpful for crashes and startup problems. You can find `latest.log` in `.minecraft/logs`.\
+        선택 사항이지만 크래시나 게임 실행 문제에는 큰 도움이 됩니다. `.minecraft/logs` 폴더의 `latest.log` 파일입니다.
+      placeholder: >-
+        Drag-and-drop the log file here. / 로그 파일을 여기에 끌어다 놓으세요.
