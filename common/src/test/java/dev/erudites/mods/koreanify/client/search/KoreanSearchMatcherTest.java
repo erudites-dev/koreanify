@@ -36,6 +36,27 @@ class KoreanSearchMatcherTest {
     }
 
     @Test
+    @DisplayName("hangul queries typed with the ime on still match latin names")
+    void matchesReverseKeyboardLayoutFallback() {
+        assertTrue(KoreanSearchMatcher.matches("keepInventory", "ㅏㄷ데"));
+        assertTrue(KoreanSearchMatcher.matches("Diamond Sword", "야므"));
+        assertTrue(KoreanSearchMatcher.matches("showDeathMessages", "놰"));
+        assertFalse(KoreanSearchMatcher.matches("keepInventory", "ㅎㄱ"));
+    }
+
+    @Test
+    @DisplayName("a compound jamo left on its own still stands for both of its keys")
+    void matchesCompoundJamoQuery() {
+        assertTrue(KoreanSearchMatcher.matches("showDeathMessages", "ㅙ"));
+    }
+
+    @Test
+    @DisplayName("hangul names keep matching hangul, the latin reading is not tried")
+    void skipsReverseLayoutForHangulNames() {
+        assertFalse(KoreanSearchMatcher.matches("다이아몬드", "ㅏㄷ데"));
+    }
+
+    @Test
     @DisplayName("hangul detection covers jamo and syllables, not other scripts")
     void detectsHangul() {
         assertTrue(KoreanSearchMatcher.containsHangul("다이아"));

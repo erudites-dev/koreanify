@@ -45,6 +45,13 @@ public class KoreanifyConfig extends JsonConfig<KoreanifyConfig> {
             "false: 영문 입력은 영문 그대로만 검색합니다."
         })
         public boolean latinAsHangulSearch = true;
+
+        @Comment({
+            "한글 입력을 영문 자판으로 해석해 검색 (ㅏㄷ데 → keep)",
+            "true (기본값): IME를 끄지 않고 입력한 한글도 해당 자판의 영문으로 해석해 함께 검색합니다.",
+            "false: 한글 입력은 한글 그대로만 검색합니다."
+        })
+        public boolean hangulAsLatinSearch = true;
     }
 
     @Category("입력 관련 설정 카테고리")

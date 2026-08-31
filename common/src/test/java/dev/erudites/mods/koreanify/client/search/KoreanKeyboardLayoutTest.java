@@ -30,6 +30,32 @@ class KoreanKeyboardLayoutTest {
     }
 
     @Test
+    @DisplayName("jamo are read back as the latin keys that typed them")
+    void convertsJamoToLatinKeys() {
+        assertEquals("rksk", KoreanKeyboardLayout.toLatin("ㄱㅏㄴㅏ"));
+        assertEquals("keep", KoreanKeyboardLayout.toLatin("ㅏㄷㄷㅔ"));
+        assertEquals("rk sk", KoreanKeyboardLayout.toLatin("ㄱㅏ ㄴㅏ"));
+    }
+
+    @Test
+    @DisplayName("double jamo read back as the unshifted key, so lowercase targets still line up")
+    void convertsDoubleJamoToLatinKeys() {
+        assertEquals("rk", KoreanKeyboardLayout.toLatin("ㄲㅏ"));
+        assertEquals("qo", KoreanKeyboardLayout.toLatin("ㅃㅒ"));
+    }
+
+    @Test
+    @DisplayName("syllables and compound jamo have to be split by the caller first")
+    void rejectsUnsplitJamoQueries() {
+        assertEquals("", KoreanKeyboardLayout.toLatin("가나"));
+        assertEquals("", KoreanKeyboardLayout.toLatin("ㅘ"));
+        assertEquals("", KoreanKeyboardLayout.toLatin("ㄱ1"));
+        assertEquals("", KoreanKeyboardLayout.toLatin("  "));
+        assertEquals("", KoreanKeyboardLayout.toLatin(""));
+        assertEquals("", KoreanKeyboardLayout.toLatin(null));
+    }
+
+    @Test
     @DisplayName("queries that are not plain latin text are left to the normal matcher")
     void rejectsNonLatinQueries() {
         assertEquals("", KoreanKeyboardLayout.toJamo("다이아"));

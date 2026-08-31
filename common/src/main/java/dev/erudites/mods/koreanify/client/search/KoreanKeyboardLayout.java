@@ -5,7 +5,10 @@ import org.jspecify.annotations.Nullable;
 public final class KoreanKeyboardLayout {
 
     private static final int ASCII_RANGE = 128;
+    private static final int JAMO_BASE = 0x3131;
+    private static final int JAMO_END = 0x3163;
     private static final char[] DUBEOLSIK = new char[ASCII_RANGE];
+    private static final char[] REVERSE_DUBEOLSIK = new char[JAMO_END - JAMO_BASE + 1];
 
     static {
         mapKeys("qwertyuiop", "ㅂㅈㄷㄱㅅㅛㅕㅑㅐㅔ");
@@ -15,6 +18,12 @@ public final class KoreanKeyboardLayout {
             DUBEOLSIK[Character.toUpperCase(key)] = DUBEOLSIK[key];
         }
         mapKeys("QWERTOP", "ㅃㅉㄸㄲㅆㅒㅖ");
+        for (char key = 0; key < ASCII_RANGE; key++) {
+            char jamo = DUBEOLSIK[key];
+            if (jamo != 0) {
+                REVERSE_DUBEOLSIK[jamo - JAMO_BASE] = Character.toLowerCase(key);
+            }
+        }
     }
 
     private KoreanKeyboardLayout() {}
@@ -43,6 +52,30 @@ public final class KoreanKeyboardLayout {
                 return "";
             }
             builder.append(jamo);
+            converted = true;
+        }
+        return converted ? builder.toString() : "";
+    }
+
+    // ㄱㅏㄴㅏ → rksk, empty unless the query is single key jamo and spaces only — callers split syllables first.
+    public static String toLatin(final @Nullable String jamo) {
+        if (jamo == null || jamo.isEmpty()) {
+            return "";
+        }
+        StringBuilder builder = new StringBuilder(jamo.length());
+        boolean converted = false;
+        for (int i = 0, n = jamo.length(); i < n; i++) {
+            char ch = jamo.charAt(i);
+            if (ch == ' ') {
+                builder.append(ch);
+                continue;
+            }
+            int index = ch - JAMO_BASE;
+            char key = index >= 0 && index < REVERSE_DUBEOLSIK.length ? REVERSE_DUBEOLSIK[index] : 0;
+            if (key == 0) {
+                return "";
+            }
+            builder.append(key);
             converted = true;
         }
         return converted ? builder.toString() : "";

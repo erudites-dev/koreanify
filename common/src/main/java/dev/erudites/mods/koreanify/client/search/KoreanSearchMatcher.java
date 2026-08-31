@@ -29,11 +29,24 @@ public final class KoreanSearchMatcher {
     private static final int MAX_JAMO_PER_CHAR = 5;
 
     private static final boolean[] IS_CHOSEONG;
+    private static final String[] COMPOUND_PARTS = new String[JAMO_END - JAMO_BASE + 1];
 
     static {
         IS_CHOSEONG = new boolean['ㅎ' - 'ㄱ' + 1];
         for (char c : CHOSEONG_TABLE) {
             IS_CHOSEONG[c - 'ㄱ'] = true;
+        }
+        for (int i = 0; i < JUNGSEONG_TABLE.length; i++) {
+            registerCompound(JUNGSEONG_TABLE[i], JUNGSEONG_PARTS[i]);
+        }
+        for (int i = 1; i < JONGSEONG_TABLE.length; i++) {
+            registerCompound(JONGSEONG_TABLE[i], JONGSEONG_PARTS[i]);
+        }
+    }
+
+    private static void registerCompound(final char jamo, final String parts) {
+        if (parts.length() > 1) {
+            COMPOUND_PARTS[jamo - JAMO_BASE] = parts;
         }
     }
 
@@ -48,7 +61,9 @@ public final class KoreanSearchMatcher {
         boolean allChoseong,
         char[] layoutJamo,
         int layoutLength,
-        boolean latinAsHangul
+        boolean latinAsHangul,
+        char[] layoutLatin,
+        boolean hangulAsLatin
     ) {}
 
     private KoreanSearchMatcher() {}
@@ -98,10 +113,16 @@ public final class KoreanSearchMatcher {
         if (target == null || target.isEmpty()) {
             return false;
         }
-        boolean latinAsHangul = KoreanifyConfig.get().search.latinAsHangulSearch;
+        KoreanifyConfig.SearchConfig config = KoreanifyConfig.get().search;
+        boolean latinAsHangul = config.latinAsHangulSearch;
+        boolean hangulAsLatin = config.hangulAsLatinSearch;
         CachedQuery cached = cachedQuery;
-        if (cached == null || !query.equals(cached.original) || cached.latinAsHangul != latinAsHangul) {
-            cached = cacheQuery(query, latinAsHangul);
+        if (cached == null
+            || !query.equals(cached.original)
+            || cached.latinAsHangul != latinAsHangul
+            || cached.hangulAsLatin != hangulAsLatin
+        ) {
+            cached = cacheQuery(query, latinAsHangul, hangulAsLatin);
         }
         char[] queryBuf = cached.normalized;
         int queryLen = cached.length;
@@ -121,15 +142,17 @@ public final class KoreanSearchMatcher {
                 return true;
             }
         }
-        return matchesKeyboardLayout(targetBuf, targetLen, cached);
+        return matchesKeyboardLayout(targetBuf, targetLen, cached)
+            || matchesReverseLayout(targetBuf, targetLen, cached);
     }
 
-    private static CachedQuery cacheQuery(final String query, final boolean latinAsHangul) {
+    private static CachedQuery cacheQuery(final String query, final boolean latinAsHangul, final boolean hangulAsLatin) {
         char[] normalized = new char[query.length()];
         int length = normalizeInto(query, normalized);
         String layout = latinAsHangul ? KoreanKeyboardLayout.toJamo(query) : "";
         char[] layoutJamo = new char[layout.length()];
         int layoutLength = normalizeInto(layout, layoutJamo);
+        String reverseLayout = hangulAsLatin ? KoreanKeyboardLayout.toLatin(expandJamo(normalized, length)) : "";
         CachedQuery cached = new CachedQuery(
             query,
             normalized,
@@ -137,7 +160,9 @@ public final class KoreanSearchMatcher {
             checkAllChoseong(normalized, length),
             layoutJamo,
             layoutLength,
-            latinAsHangul
+            latinAsHangul,
+            reverseLayout.toCharArray(),
+            hangulAsLatin
         );
         cachedQuery = cached;
         return cached;
@@ -154,12 +179,24 @@ public final class KoreanSearchMatcher {
         if (layoutLen > jamoLen) {
             return false;
         }
-        char[] layoutJamo = cached.layoutJamo;
-        int limit = jamoLen - layoutLen;
+        return containsSequence(jamoBuf, jamoLen, cached.layoutJamo, layoutLen);
+    }
+
+    // The mirror case, so the query typed with the ime on still matches: ㅏㄷ데 → keep
+    private static boolean matchesReverseLayout(final char[] targetBuf, final int targetLen, final CachedQuery cached) {
+        char[] layoutLatin = cached.layoutLatin;
+        if (layoutLatin.length == 0 || layoutLatin.length > targetLen || containsHangul(targetBuf, targetLen)) {
+            return false;
+        }
+        return containsSequence(targetBuf, targetLen, layoutLatin, layoutLatin.length);
+    }
+
+    private static boolean containsSequence(final char[] haystack, final int haystackLen, final char[] needle, final int needleLen) {
+        int limit = haystackLen - needleLen;
         for (int i = 0; i <= limit; i++) {
             boolean found = true;
-            for (int j = 0; j < layoutLen; j++) {
-                if (jamoBuf[i + j] != layoutJamo[j]) {
+            for (int j = 0; j < needleLen; j++) {
+                if (haystack[i + j] != needle[j]) {
                     found = false;
                     break;
                 }
@@ -171,13 +208,23 @@ public final class KoreanSearchMatcher {
         return false;
     }
 
+    private static String expandJamo(final char[] source, final int length) {
+        char[] expanded = new char[length * MAX_JAMO_PER_CHAR];
+        return new String(expanded, 0, expandJamoInto(source, length, expanded));
+    }
+
     // Decomposes down to the keys that type each syllable: 과 → ㄱㅗㅏ, 앉 → ㅇㅏㄴㅈ
     private static int expandJamoInto(final char[] source, final int length, final char[] target) {
         int written = 0;
         for (int i = 0; i < length; i++) {
             char ch = source[i];
             if (ch < HANGUL_BASE || ch > HANGUL_END) {
-                target[written++] = ch;
+                String parts = compoundParts(ch);
+                if (parts == null) {
+                    target[written++] = ch;
+                } else {
+                    written = appendParts(target, written, parts);
+                }
                 continue;
             }
             int offset = ch - HANGUL_BASE;
@@ -186,6 +233,12 @@ public final class KoreanSearchMatcher {
             written = appendParts(target, written, JONGSEONG_PARTS[offset % JONGSEONG_COUNT]);
         }
         return written;
+    }
+
+    // A compound jamo left on its own still stands for the two keys that typed it: ㅘ → ㅗㅏ
+    private static @Nullable String compoundParts(final char ch) {
+        int index = ch - JAMO_BASE;
+        return index >= 0 && index < COMPOUND_PARTS.length ? COMPOUND_PARTS[index] : null;
     }
 
     private static int appendParts(final char[] target, final int written, final String parts) {
