@@ -3,9 +3,8 @@ package dev.erudites.mods.koreanify.mixin.screens;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
-import dev.erudites.mods.koreanify.client.ime.PreeditState;
-import dev.erudites.mods.koreanify.client.search.KoreanSearchMatcher;
+import dev.erudites.mods.koreanify.client.search.ComposedSearch;
+import dev.erudites.mods.koreanify.client.search.NameIndex;
 import net.minecraft.client.ClientRecipeBook;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -15,17 +14,16 @@ import net.minecraft.client.gui.screens.recipebook.RecipeCollection;
 import net.minecraft.client.input.PreeditEvent;
 import net.minecraft.client.searchtree.SearchTree;
 import net.minecraft.util.context.ContextMap;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Mixin(RecipeBookComponent.class)
 abstract class RecipeBookComponentMixin {
@@ -51,9 +49,12 @@ abstract class RecipeBookComponentMixin {
     @Shadow
     protected abstract void updateCollections(boolean resetPage, boolean isFiltering);
 
+    @Unique
+    private final NameIndex<RecipeCollection> recipeNameIndex = new NameIndex<>();
+
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
     private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
-        if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
+        if (ComposedSearch.shouldRefresh(this.ignoreTextInput, this.searchBox)) {
             this.checkSearchStringUpdate();
         }
     }
@@ -64,11 +65,7 @@ abstract class RecipeBookComponentMixin {
             original.call();
             return;
         }
-        String searchText = PreeditComposer.mergedSearchQuery(
-            this.searchBox.getValue(),
-            this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify$composition()
-        );
+        String searchText = ComposedSearch.query(this.searchBox);
         this.pirateSpeechForThePeople(searchText);
         if (!searchText.equals(this.lastSearch)) {
             this.updateCollections(false, this.isFiltering());
@@ -85,11 +82,7 @@ abstract class RecipeBookComponentMixin {
         )
     )
     private boolean koreanify$wrapIsEmpty(String instance, Operation<Boolean> original) {
-        boolean empty = original.call(instance);
-        if (!empty) {
-            return false;
-        }
-        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify$composition().isEmpty();
+        return original.call(instance) && !ComposedSearch.composing(this.searchBox);
     }
 
     @WrapOperation(
@@ -104,28 +97,24 @@ abstract class RecipeBookComponentMixin {
         final String searchTarget,
         Operation<List<RecipeCollection>> original
     ) {
-        if (this.searchBox == null) {
+        String composedTarget = ComposedSearch.query(this.searchBox);
+        if (composedTarget.isEmpty()) {
             return original.call(instance, searchTarget);
         }
-        String composedTarget = PreeditComposer.mergedSearchQuery(
-            this.searchBox.getValue(),
-            this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify$composition()
-        );
         List<RecipeCollection> vanillaResults = original.call(instance, composedTarget);
         if (this.minecraft.level == null || this.selectedTab == null) {
             return vanillaResults;
         }
         ContextMap context = SlotDisplayContext.fromLevel(this.minecraft.level);
-        List<RecipeCollection> koreanMatchedResults = this.book.getCollection(this.selectedTab.getCategory()).stream()
-            .filter(collection -> !collection.getRecipes().isEmpty())
-            .filter(collection -> {
-                List<ItemStack> results = collection.getRecipes().getFirst().resultItems(context);
-                return !results.isEmpty() && KoreanSearchMatcher.matches(results.getFirst().getHoverName().getString(), composedTarget);
-            })
-            .toList();
-        return Stream.concat(vanillaResults.stream(), koreanMatchedResults.stream())
-            .distinct()
-            .toList();
+        List<RecipeCollection> koreanMatchedResults = this.recipeNameIndex.matching(
+            this.book.getCollection(this.selectedTab.getCategory()),
+            composedTarget,
+            collection -> collection.getRecipes().stream()
+                .findFirst()
+                .flatMap(recipe -> recipe.resultItems(context).stream().findFirst())
+                .map(result -> result.getHoverName().getString())
+                .orElse("")
+        );
+        return ComposedSearch.combine(vanillaResults, koreanMatchedResults);
     }
 }

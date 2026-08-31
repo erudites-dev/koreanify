@@ -2,9 +2,8 @@ package dev.erudites.mods.koreanify.mixin.screens;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.erudites.mods.koreanify.client.ime.PreeditComposer;
-import dev.erudites.mods.koreanify.client.ime.PreeditState;
-import dev.erudites.mods.koreanify.client.search.ItemNameIndex;
+import dev.erudites.mods.koreanify.client.search.ComposedSearch;
+import dev.erudites.mods.koreanify.client.search.NameIndex;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.input.PreeditEvent;
@@ -21,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Mixin(CreativeModeInventoryScreen.class)
 abstract class CreativeModeInventoryScreenMixin {
@@ -34,7 +32,7 @@ abstract class CreativeModeInventoryScreenMixin {
     protected abstract void refreshSearchResults();
 
     @Unique
-    private final ItemNameIndex itemNameIndex = new ItemNameIndex();
+    private final NameIndex<ItemStack> itemNameIndex = new NameIndex<>();
 
     @Inject(method = "init", at = @At("TAIL"))
     private void koreanify$invalidateItemNameIndex(CallbackInfo ci) {
@@ -43,7 +41,7 @@ abstract class CreativeModeInventoryScreenMixin {
 
     @Inject(method = "preeditUpdated", at = @At("RETURN"))
     private void koreanify$preeditUpdated(final @Nullable PreeditEvent event, CallbackInfoReturnable<Boolean> cir) {
-        if (!this.ignoreTextInput && this.searchBox != null && this.searchBox.isVisible()) {
+        if (ComposedSearch.shouldRefresh(this.ignoreTextInput, this.searchBox)) {
             this.refreshSearchResults();
         }
     }
@@ -57,11 +55,7 @@ abstract class CreativeModeInventoryScreenMixin {
         )
     )
     private boolean koreanify$wrapIsEmpty(String instance, Operation<Boolean> original) {
-        boolean empty = original.call(instance);
-        if (!empty) {
-            return false;
-        }
-        return this.searchBox == null || ((PreeditState) this.searchBox).koreanify$composition().isEmpty();
+        return original.call(instance) && !ComposedSearch.composing(this.searchBox);
     }
 
     @WrapOperation(
@@ -71,22 +65,24 @@ abstract class CreativeModeInventoryScreenMixin {
             target = "Lnet/minecraft/client/searchtree/SearchTree;search(Ljava/lang/String;)Ljava/util/List;"
         )
     )
-    private List<ItemStack> koreanify$wrapSearch(SearchTree<ItemStack> instance, String searchTarget, Operation<List<ItemStack>> original) {
-        String composedTarget = PreeditComposer.mergedSearchQuery(
-            this.searchBox.getValue(),
-            this.searchBox.getCursorPosition(),
-            ((PreeditState) this.searchBox).koreanify$composition()
-        );
+    private List<ItemStack> koreanify$wrapSearch(
+        final SearchTree<ItemStack> instance,
+        final String searchTarget,
+        Operation<List<ItemStack>> original
+    ) {
+        String composedTarget = ComposedSearch.query(this.searchBox);
+        if (composedTarget.isEmpty()) {
+            return original.call(instance, searchTarget);
+        }
         if (composedTarget.startsWith("#")) {
-            return original.call(instance, composedTarget);
+            return original.call(instance, composedTarget.substring(1));
         }
         List<ItemStack> vanillaResults = original.call(instance, composedTarget);
         List<ItemStack> koreanMatchedResults = this.itemNameIndex.matching(
             CreativeModeTabs.searchTab().getDisplayItems(),
-            composedTarget
+            composedTarget,
+            stack -> stack.getHoverName().getString()
         );
-        return Stream.concat(vanillaResults.stream(), koreanMatchedResults.stream())
-            .distinct()
-            .toList();
+        return ComposedSearch.combine(vanillaResults, koreanMatchedResults);
     }
 }
