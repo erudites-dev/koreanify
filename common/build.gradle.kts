@@ -30,6 +30,8 @@ tasks.test {
 }
 
 loom {
+    accessWidenerPath = file("src/main/resources/koreanify.classtweaker")
+
     mixin {
         useLegacyMixinAp = false
     }

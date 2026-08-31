@@ -37,6 +37,7 @@
   "mixins": [
     "koreanify.mixins.json"
   ],
+  "accessWidener": "koreanify.classtweaker",
   "depends": {
     "java": ">=25",
     "fabricloader": ">=${fabric_loader_version}",

@@ -35,6 +35,8 @@ sourceSets {
 neoForge {
     version = BuildConfig.NEOFORGE_VERSION
 
+    accessTransformers.from(project(":common").file("src/main/resources/META-INF/accesstransformer.cfg"))
+
     runs {
         create("Client") {
             client()

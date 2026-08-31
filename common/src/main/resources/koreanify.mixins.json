@@ -15,8 +15,13 @@
     "input.KeyboardHandlerMixin",
     "screens.AbstractGameRulesScreenRuleListMixin",
     "screens.AbstractSignEditScreenMixin",
+    "screens.CreateBuffetWorldScreenBiomeListMixin",
     "screens.CreativeModeInventoryScreenMixin",
+    "screens.DebugOptionsScreenOptionListMixin",
+    "screens.LanguageSelectScreenLanguageSelectionListMixin",
+    "screens.PackSelectionScreenMixin",
     "screens.RecipeBookComponentMixin",
+    "screens.SocialInteractionsPlayerListMixin",
     "screens.WorldSelectionListMixin"
   ],
   "injectors": {

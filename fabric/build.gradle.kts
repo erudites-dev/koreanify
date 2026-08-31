@@ -38,6 +38,8 @@ dependencies {
 }
 
 loom {
+    accessWidenerPath = project(":common").file("src/main/resources/koreanify.classtweaker")
+
     mixin {
         useLegacyMixinAp = false
     }
