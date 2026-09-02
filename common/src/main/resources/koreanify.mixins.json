@@ -15,6 +15,7 @@
     "input.KeyboardHandlerMixin",
     "screens.AbstractGameRulesScreenRuleListMixin",
     "screens.AbstractSignEditScreenMixin",
+    "screens.CreateBuffetWorldScreenBiomeListEntryAccessor",
     "screens.CreateBuffetWorldScreenBiomeListMixin",
     "screens.CreativeModeInventoryScreenMixin",
     "screens.DebugOptionsScreenOptionListMixin",

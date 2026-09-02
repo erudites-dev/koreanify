@@ -27,7 +27,10 @@ abstract class CreateBuffetWorldScreenBiomeListMixin {
         final String filter
     ) {
         Predicate<CreateBuffetWorldScreen.BiomeList.Entry> koreanAccepts =
-            entry -> KoreanSearchMatcher.matches(entry.name.getString(), filter);
+            entry -> KoreanSearchMatcher.matches(
+                ((CreateBuffetWorldScreenBiomeListEntryAccessor) entry).koreanify$name().getString(),
+                filter
+            );
         return original.call(instance, accepts.or(koreanAccepts));
     }
 }
