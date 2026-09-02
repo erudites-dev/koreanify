@@ -57,6 +57,11 @@ loom {
 tasks {
     val modsDir = rootProject.layout.buildDirectory.dir("mods")
 
+    // :common and :fabric share one loom cache, and genSources line-maps the merged jar in place.
+    named("validateAccessWidener") {
+        mustRunAfter(":common:genSourcesWithVineflower")
+    }
+
     jar {
         from(configurationCommonModJava)
         destinationDirectory.set(modsDir)
