@@ -21,7 +21,7 @@ config="koreanify.mixins.json"
 [[dependencies.koreanify]]
 modId="minecraft"
 type="required"
-versionRange="[${minecraft_version},)"
+versionRange="${minecraft_version_maven}"
 ordering="NONE"
 side="CLIENT"
 

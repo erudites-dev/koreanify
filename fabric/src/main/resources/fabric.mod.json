@@ -41,7 +41,7 @@
   "depends": {
     "java": ">=25",
     "fabricloader": ">=${fabric_loader_version}",
-    "minecraft": ">=${minecraft_version}"
+    "minecraft": "${minecraft_version}"
   },
   "suggests": {
     "modmenu": "*"

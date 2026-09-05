@@ -14,8 +14,9 @@ tasks {
     processResources {
         val propertiesMap = mapOf(
             "version" to version,
-            "minecraft_version" to BuildConfig.MINECRAFT_VERSION_MIN
+            "minecraft_version" to BuildConfig.MINECRAFT_VERSION_RANGE
                 .replace("(?<=\\D)-".toRegex(), "."), // fabric snapshot test
+            "minecraft_version_maven" to BuildConfig.MINECRAFT_VERSION_MAVEN,
             "fabric_loader_version" to BuildConfig.FABRIC_LOADER_VERSION,
             "neoforge_version" to BuildConfig.NEOFORGE_VERSION
         )

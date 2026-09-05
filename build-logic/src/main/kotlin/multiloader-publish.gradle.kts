@@ -48,7 +48,7 @@ gradle.projectsEvaluated {
             projectId = "1466540"
             minecraftVersionRange {
                 start = BuildConfig.MINECRAFT_VERSION_MIN
-                end = "latest"
+                end = BuildConfig.MINECRAFT_PUBLISH_END
             }
             clientRequired = true
             javaVersions.add(JavaVersion.toVersion(BuildConfig.JAVA_VERSION))
@@ -59,7 +59,7 @@ gradle.projectsEvaluated {
             projectId = "p1nSK3e3"
             minecraftVersionRange {
                 start = BuildConfig.MINECRAFT_VERSION_MIN
-                end = "latest"
+                end = BuildConfig.MINECRAFT_PUBLISH_END
                 includeSnapshots = includeSnapshot
             }
         }
